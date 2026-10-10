@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestora de Stock</title>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+    <!-- Barra de navegación con JavaScript y CSS -->
+    <div class="menu">
+        <!-- Cada vez que se presione un boton, se activa el evento cambiar pestaña
+         el cual modifica las clases internas de cada pestaña y con CSS se esconde el resto -->
+        <button class="pestaña-btn active" onclick="cambiarPestana(event, 'panel-principal')">PANEL PRINCIPAL</button>
+        <button class="pestaña-btn" onclick="cambiarPestana(event, 'nuevo-pedido')">NUEVO PEDIDO</button>
+        <button class="pestaña-btn" onclick="cambiarPestana(event, 'inventario')">INVENTARIO</button>
+        <button class="pestaña-btn" onclick="cambiarPestana(event, 'historial-pedidos')">HISTORIAL DE PEDIDOS</button>
+        <button class="pestaña-btn" onclick="cambiarPestana(event, 'clientes')">CLIENTES</button>
+        <button class="pestaña-btn" onclick="cambiarPestana(event, 'proveedores')">PROVEEDORES</button>
+    </div>
+
+    <!-- La primera pestaña tiene la clase 'active-content' para que sea la principal -->
+    <div id="panel-principal" class="pestaña active-content">
+        <h2>Panel Principal</h2>
+        <p>Resumen general del sistema de stock.</p>
+    </div>
+
+    <div id="nuevo-pedido" class="pestaña">
+        <h2>Nuevo Pedido</h2>
+        <p>Formulario para registrar un nuevo pedido.</p>
+    </div>
+
+    <div id="inventario" class="pestaña">
+        <h2>Inventario</h2>
+        <p>Listado y control de la tabla `producto`.</p>
+    </div>
+
+    <div id="historial-pedidos" class="pestaña">
+        <h2>Historial de Pedidos</h2>
+        <p>Listado de las tablas `pedido` y `producto_pedido`.</p>
+    </div>
+
+    <div id="clientes" class="pestaña">
+        <h2>Clientes</h2>
+        <p>Gestión de la tabla `clientes`.</p>
+    </div>
+
+    <div id="proveedores" class="pestaña">
+        <h2>Proveedores</h2>
+        <p>Gestión de la tabla `proveedor`.</p>
+    </div>
+
+    <!-- Vinculacion con JavaScript -->
+    <script src="app.js"></script>
+</body>
+</html>

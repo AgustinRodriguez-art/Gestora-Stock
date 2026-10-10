@@ -1,2 +1,2 @@
-GESTORA STOCK B) 
+hola chicos, como andan :)
 
