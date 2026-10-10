@@ -1,0 +1,16 @@
+/* Oculta todas las pestañas por defecto */
+.pestaña {
+  display: none;
+}
+
+/* Muestra la pestaña que tenga la clase activa */
+.pestaña.active-content {
+  display: block;
+}
+
+/* Color azul para el boton de la pestaña activa */
+.pestaña-btn.active {
+  font-weight: bold;
+  background-color: #007bff;
+  color: white;
+}
