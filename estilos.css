@@ -1,4 +1,10 @@
 /* Oculta todas las pestañas por defecto */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
 body {
   font-family: Arial, Helvetica, sans-serif;
   background-color: #f4f4f4;
@@ -44,6 +50,11 @@ body {
   color: white;
 }
 
+.contenido {
+  flex: 1;
+  padding: 25px;
+}
+
 .pestaña {
   display: none;
 }
@@ -52,4 +63,44 @@ body {
 .pestaña.active-content {
   display: block;
 }
+
+.cajas-resumen {
+  display: flex;
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.caja {
+  flex: 1;
+  padding: 20px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.caja h4 {
+  font-size: 12px;
+  margin-bottom: 8px;
+  color: #666;
+}
+
+.caja p {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.caja.alerta {
+  border-color: #dc3545;
+  color: #dc3545;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+  margin-top: 15px;
+}
+
+
 
