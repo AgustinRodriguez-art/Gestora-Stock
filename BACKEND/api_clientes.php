@@ -13,26 +13,20 @@ if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
 
 $metodo = $_SERVER["REQUEST_METHOD"];
 
-
- //  POST - Registrar cliente nuevo
-
+// POST: Registrar un cliente nuevo
 if ($metodo === "POST") {
     $cuerpo = json_decode(file_get_contents("php://input"), true);
-    if (
-        !isset($cuerpo["nombre_cliente"]) ||
-        !isset($cuerpo["direccion"]) ||
-        !isset($cuerpo["telefono"])
-    ) {
+
+    if (!isset($cuerpo["nombre_cliente"], $cuerpo["direccion"], $cuerpo["telefono"])) {
         http_response_code(400);
         echo json_encode(["error" => "Faltan datos del cliente"]);
         exit();
     }
 
     $consulta = $conexion->prepare(
-        "INSERT INTO clientes (nombre_cliente, direccion, telefono)
+        "INSERT INTO clientes (nombre_cliente, direccion, telefono) 
          VALUES (:nombre_cliente, :direccion, :telefono)"
     );
-
     $consulta->execute([
         ":nombre_cliente" => $cuerpo["nombre_cliente"],
         ":direccion"      => $cuerpo["direccion"],
@@ -41,19 +35,16 @@ if ($metodo === "POST") {
 
     http_response_code(201);
     echo json_encode([
-        "success" => true,
+        "success" => true, 
         "id_cliente" => (int)$conexion->lastInsertId()
     ], JSON_UNESCAPED_UNICODE);
-
     exit();
 }
 
-//GET - Listar clientes
-
+// GET: Listar todos los clientes
 if ($metodo === "GET") {
-    $consulta = $conexion->query("SELECT * FROM clientes"); 
+    $consulta = $conexion->query("SELECT * FROM clientes");
     $clientes = $consulta->fetchAll(PDO::FETCH_ASSOC);
-
     echo json_encode($clientes, JSON_UNESCAPED_UNICODE);
     exit();
 }

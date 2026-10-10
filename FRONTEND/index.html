@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestora de Stock</title>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+
+    <!-- Barra de navegacion principal -->
+    <header>
+        <h1>Sistema de Gestion de Stock</h1>
+        <nav>
+            <button onclick="mostrarSeccion('dashboard')">Dashboard</button>
+            <button onclick="mostrarSeccion('productos')">Productos</button>
+            <button onclick="mostrarSeccion('clientes')">Clientes</button>
+            <button onclick="mostrarSeccion('proveedores')">Proveedores</button>
+            <button onclick="mostrarSeccion('pedidos')">Pedidos</button>
+        </nav>
+    </header>
+
+    <main>
+        <!-- SECCION DASHBOARD -->
+        <section id="dashboard" class="seccion activa">
+            <h2>Panel General</h2>
+            <div class="cards-contenedor">
+                <div class="card">
+                    <h3>Ventas del Mes</h3>
+                    <p id="montoMes">$0</p>
+                </div>
+                <div class="card">
+                    <h3>Ventas del Anio</h3>
+                    <p id="montoAnio">$0</p>
+                </div>
+            </div>
+            <h3>Alertas de Stock Bajo (Menor o igual a 5)</h3>
+            <table id="tablaStockBajo">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Stock Actual</th>
+                        <th>Categoria</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+
+        <!-- SECCION PRODUCTOS -->
+        <section id="productos" class="seccion">
+            <h2>Gestion de Productos</h2>
+            <form id="formProducto">
+                <input type="text" id="prodNombre" placeholder="Nombre del producto" required>
+                <input type="number" step="0.01" id="prodPrecioCompra" placeholder="Precio compra">
+                <input type="number" step="0.01" id="prodPrecioVenta" placeholder="Precio venta" required>
+                <input type="text" id="prodCategoria" placeholder="Categoria" required>
+                <input type="number" id="prodStock" placeholder="Stock inicial" required>
+                <button type="submit">Guardar Producto</button>
+            </form>
+            <table id="tablaProductos">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>P. Venta</th>
+                        <th>Categoria</th>
+                        <th>Stock</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+
+        <!-- SECCION CLIENTES -->
+        <section id="clientes" class="seccion">
+            <h2>Gestion de Clientes</h2>
+            <form id="formCliente">
+                <input type="text" id="cliNombre" placeholder="Nombre y apellido" required>
+                <input type="text" id="cliDireccion" placeholder="Direccion" required>
+                <input type="text" id="cliTelefono" placeholder="Telefono" required>
+                <button type="submit">Guardar Cliente</button>
+            </form>
+            <table id="tablaClientes">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Direccion</th>
+                        <th>Telefono</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+
+        <!-- SECCION PROVEEDORES -->
+        <section id="proveedores" class="seccion">
+            <h2>Gestion de Proveedores</h2>
+            <form id="formProveedor">
+                <input type="text" id="provNombre" placeholder="Nombre empresa / proveedor" required>
+                <input type="text" id="provContacto" placeholder="Persona de contacto" required>
+                <input type="email" id="provMail" placeholder="Correo electronico" required>
+                <button type="submit">Guardar Proveedor</button>
+            </form>
+            <table id="tablaProveedores">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Empresa</th>
+                        <th>Contacto</th>
+                        <th>Mail</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+
+        <!-- SECCION PEDIDOS -->
+        <section id="pedidos" class="seccion">
+            <h2>Registrar Pedido / Venta</h2>
+            <form id="formPedido">
+                <input type="number" id="pedIdCliente" placeholder="ID del Cliente" required>
+                <input type="number" id="pedIdProducto" placeholder="ID del Producto" required>
+                <input type="number" id="pedCantidad" placeholder="Cantidad" required>
+                <input type="number" step="0.01" id="pedPrecioUnitario" placeholder="Precio unitario" required>
+                <button type="submit">Registrar Pedido</button>
+            </form>
+            <table id="tablaPedidos">
+                <thead>
+                    <tr>
+                        <th>ID Pedido</th>
+                        <th>Cliente</th>
+                        <th>Total</th>
+                        <th>Fecha</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
