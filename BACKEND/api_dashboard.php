@@ -11,20 +11,22 @@ if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
     exit();
 }
 
+//  Procesa peticiones de lectura mediante GET
 if ($_SERVER["REQUEST_METHOD"] === "GET") {
     try {
-        // Ventas del mes actual
+        // Consultamos la suma de las ventas correspondientes al mes en curso
         $stmtMes = $conexion->query("SELECT SUM(total_pedido) AS total_mes FROM pedido WHERE MONTH(fecha) = MONTH(CURRENT_DATE()) AND YEAR(fecha) = YEAR(CURRENT_DATE())");
         $montoMes = $stmtMes->fetch(PDO::FETCH_ASSOC)['total_mes'] ?? 0;
 
-        // Ventas del ano actual
+        // Consultamos la suma de las ventas totales del alño actual
         $stmtAnio = $conexion->query("SELECT SUM(total_pedido) AS total_anio FROM pedido WHERE YEAR(fecha) = YEAR(CURRENT_DATE())");
         $montoAnio = $stmtAnio->fetch(PDO::FETCH_ASSOC)['total_anio'] ?? 0;
 
-        // Productos con stock bajo (menor o igual a 5)
+        // Filtramos los articulos cuyo stock sea menor o igual a 5 para generar alertas de stock bajio 
         $stmtBajo = $conexion->query("SELECT * FROM producto WHERE stock <= 5");
         $stockBajo = $stmtBajo->fetchAll(PDO::FETCH_ASSOC);
 
+        // Devolvemos toda la informacion agrupada en formato json
         echo json_encode([
             "success"     => true,
             "monto_mes"   => (float)$montoMes,

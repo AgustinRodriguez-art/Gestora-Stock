@@ -13,7 +13,7 @@ if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
 
 $metodo = $_SERVER["REQUEST_METHOD"];
 
-// POST: Registrar un proveedor
+// Si es POST, registramos un nuevo proveedor
 if ($metodo === "POST") {
     $cuerpo = json_decode(file_get_contents("php://input"), true);
     
@@ -41,7 +41,7 @@ if ($metodo === "POST") {
     exit();
 }
 
-// GET: Listar todos los proveedores
+// Si es GET, consultamos todos los proveedores cargados
 if ($metodo === "GET") {
     $consulta = $conexion->query("SELECT * FROM proveedor");
     $proveedores = $consulta->fetchAll(PDO::FETCH_ASSOC);

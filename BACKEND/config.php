@@ -1,5 +1,5 @@
 <?php
-// Datos de configuracion para la base de datos
+// Datos para conectar a la base de datos local
 define('DB_HOST', 'localhost');
 define('DB_USER', 'root');
 define('DB_PASS', '');
