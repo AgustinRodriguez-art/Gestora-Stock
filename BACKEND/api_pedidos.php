@@ -1,93 +1,92 @@
 <?php
-require_once 'conexion.php';
-$method = $_SERVER['REQUEST_METHOD'];
+require "conexion.php";
 
-if ($method === 'POST') {
-    $data = json_decode(file_get_contents("php://input"), true);
-    
-    if (!isset($data['id_cliente'], $data['productos']) || empty($data['productos'])) {
-        echo json_encode(["success" => false, "error" => "Datos de pedido incompletos"]);
-        exit;
+header("Access-Control-Allow-Origin: *");
+header("Content-Type: application/json; charset=utf-8");
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type");
+
+if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
+    http_response_code(200);
+    exit();
+}
+
+$metodo = $_SERVER["REQUEST_METHOD"];
+
+// POST: Registrar un pedido y descontar stock con transaccion
+if ($metodo === "POST") {
+    $cuerpo = json_decode(file_get_contents("php://input"), true);
+
+    if (!isset($cuerpo["id_cliente"], $cuerpo["productos"]) || empty($cuerpo["productos"])) {
+        http_response_code(400);
+        echo json_encode(["error" => "Faltan datos del pedido o el carrito esta vacio"]);
+        exit();
     }
 
     try {
-        $pdo->beginTransaction();
+        $conexion->beginTransaction();
 
-        $id_cliente = $data['id_cliente'];
-        $productos = $data['productos']; // Array con [id_producto, cantidad, precio_unitario]
+        $id_cliente = $cuerpo["id_cliente"];
+        $productos = $cuerpo["productos"];
         $total_pedido = 0;
 
         foreach ($productos as $item) {
-            $total_pedido += ($item['cantidad'] * $item['precio_unitario']);
+            $total_pedido += ($item["cantidad"] * $item["precio_unitario"]);
         }
 
-        // 1. Insertar Cabecera del Pedido
-        $stmtPedido = $pdo->prepare("INSERT INTO Pedido (id_cliente, total_pedido) VALUES (?, ?)");
-        $stmtPedido->execute([$id_cliente, $total_pedido]);
-        $id_pedido = $pdo->lastInsertId();
+        // 1. Insertar cabecera del pedido
+        $stmtPedido = $conexion->prepare("INSERT INTO pedido (id_cliente, total_pedido) VALUES (:id_cliente, :total_pedido)");
+        $stmtPedido->execute([
+            ":id_cliente"   => $id_cliente,
+            ":total_pedido" => $total_pedido
+        ]);
+        $id_pedido = $conexion->lastInsertId();
 
-        // 2. Insertar Detalle y Actualizar Stock
-        $productosStockBajo = [];
-
+        // 2. Insertar detalle y actualizar stock
         foreach ($productos as $item) {
-            $id_prod = $item['id_producto'];
-            $cant = $item['cantidad'];
-            $precio = $item['precio_unitario'];
+            $stmtDetalle = $conexion->prepare(
+                "INSERT INTO producto_pedido (id_pedido, id_producto, cantidad, precio_unitario) 
+                 VALUES (:id_pedido, :id_producto, :cantidad, :precio_unitario)"
+            );
+            $stmtDetalle->execute([
+                ":id_pedido"       => $id_pedido,
+                ":id_producto"     => $item["id_producto"],
+                ":cantidad"        => $item["cantidad"],
+                ":precio_unitario" => $item["precio_unitario"]
+            ]);
 
-            // Insertar en Producto_pedido
-            $stmtDetalle = $pdo->prepare("INSERT INTO Producto_pedido (id_pedido, id_producto, cantidad, precio_unitario) VALUES (?, ?, ?, ?)");
-            $stmtDetalle->execute([$id_pedido, $id_prod, $cant, $precio]);
-
-            // Actualizar stock de la tabla Producto
-            $stmtStock = $pdo->prepare("UPDATE Producto SET stock = stock - ? WHERE id_producto = ?");
-            $stmtStock->execute([$cant, $id_prod]);
-
-            // Verificar si el stock quedó igual o menor a 5 para generar alerta
-            $stmtCheck = $pdo->prepare("SELECT nombre, stock FROM Producto WHERE id_producto = ?");
-            $stmtCheck->execute([$id_prod]);
-            $prodInfo = $stmtCheck->fetch();
-
-            if ($prodInfo && $prodInfo['stock'] <= 5) {
-                $productosStockBajo[] = $prodInfo['nombre'] . " (Stock restante: " . $prodInfo['stock'] . ")";
-            }
+            $stmtStock = $conexion->prepare("UPDATE producto SET stock = stock - :cantidad WHERE id_producto = :id_producto");
+            $stmtStock->execute([
+                ":cantidad"    => $item["cantidad"],
+                ":id_producto" => $item["id_producto"]
+            ]);
         }
 
-        $pdo->commit();
-
-        // 3. Integración de la API Externa de Correo (Resend) por Stock Bajo
-        if (!empty($productosStockBajo)) {
-            enviarAlertaStockBajo($productosStockBajo);
-        }
-
-        echo json_encode(["success" => true, "message" => "Pedido registrado con éxito", "id_pedido" => $id_pedido]);
+        $conexion->commit();
+        http_response_code(201);
+        echo json_encode([
+            "success"   => true,
+            "id_pedido" => (int)$id_pedido,
+            "total"     => $total_pedido
+        ], JSON_UNESCAPED_UNICODE);
 
     } catch (Exception $e) {
-        $pdo->rollBack();
-        echo json_encode(["success" => false, "error" => $e->getMessage()]);
+        $conexion->rollBack();
+        http_response_code(500);
+        echo json_encode(["error" => $e->getMessage()], JSON_UNESCAPED_UNICODE);
     }
+    exit();
 }
 
-function enviarAlertaStockBajo($productos) {
-    $apiKey = 're_123456789'; // Reemplazar con su API Key real de Resend
-    $mensaje = "Atención Administrador:\n\nLos siguientes productos han alcanzado un nivel crítico de stock:\n\n" . implode("\n", $productos);
-
-    $payload = [
-        'from' => 'inventario@tu-dominio.com',
-        'to' => 'admin@consultorastock.com',
-        'subject' => '⚠️ Alerta Crítica: Stock Bajo en Sistema',
-        'text' => $mensaje
-    ];
-
-    $ch = curl_init('https://api.resend.com/emails');
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Authorization: Bearer ' . $apiKey,
-        'Content-Type: application/json'
-    ]);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
-    
-    curl_exec($ch);
-    curl_close($ch);
+// GET: Listar todos los pedidos con nombre de cliente
+if ($metodo === "GET") {
+    $consulta = $conexion->query(
+        "SELECT p.*, c.nombre_cliente 
+         FROM pedido p 
+         JOIN clientes c ON p.id_cliente = c.id_cliente"
+    );
+    $pedidos = $consulta->fetchAll(PDO::FETCH_ASSOC);
+    echo json_encode($pedidos, JSON_UNESCAPED_UNICODE);
+    exit();
 }
 ?>
