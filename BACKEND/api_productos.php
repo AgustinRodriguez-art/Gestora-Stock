@@ -17,6 +17,7 @@ $metodo = $_SERVER["REQUEST_METHOD"];
 
 
   // POST - Crear producto nuevo
+  
 if ($metodo === "POST") {
     // Lee los datos JSON enviados desde JavaScript
     $cuerpo = json_decode(

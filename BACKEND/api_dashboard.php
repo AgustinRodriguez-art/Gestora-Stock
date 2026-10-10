@@ -11,9 +11,9 @@ if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
     exit();
 }
 
-/* ==========================
-   GET - Obtener metricas generales
-   ========================== */
+
+// GET - Obtener metricas generales
+
 if ($_SERVER["REQUEST_METHOD"] === "GET") {
     try {
         // Suma las ventas del mes en curso

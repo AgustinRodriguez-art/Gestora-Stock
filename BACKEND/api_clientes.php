@@ -48,8 +48,6 @@ if ($metodo === "POST") {
     exit();
 }
 
-
-
 //GET - Listar clientes
 
 if ($metodo === "GET") {
