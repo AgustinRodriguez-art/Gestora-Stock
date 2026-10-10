@@ -19,32 +19,72 @@
         <button class="pestaña-btn" onclick="cambiarPestana(event, 'proveedores')">PROVEEDORES</button>
     </div>
 
+    <!-- PANEL PRINCIPAL -->
     <!-- La primera pestaña tiene la clase 'active-content' para que sea la principal -->
     <div id="panel-principal" class="pestaña active-content">
         <h2>Panel Principal</h2>
         <p>Resumen general del sistema de stock.</p>
+    <!-- Las 4 cajas principales -->
+    <div class="cajas-resumen"></div>
+        <div class="caja">
+            <h4>VENTAS TOTALES</h4>
+            <p id="total-ventas">$0.00</p>
+        </div>
+        <div class="caja">
+            <h4>PRODUCTOS EN STOCK</h4>
+            <p id="productos-stock">0</p>
+        </div>
+        <div class="caja">
+            <h4>ALERTA STOCK BAJO</h4>
+            <p id="alerta-stock">0</p>
+        </div>
+        <div class="caja">
+            <h4>CLIENTES Y PROVEEDORES </h4>
+            <p id="total-contactos">0 / 0</p>
+        </div>
     </div>
-
+    
+    <div class="bloque-tabla">
+        <h3>ULTIMAS OPERACIONES</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>FECHA</th>
+                    <th>CLIENTE</th>
+                    <th>TOTAL</th>
+                </tr>
+            </thead>
+            <tbody id="tabla-ultimas-operaciones">
+                <tr><td colSpan="4">Cargando...</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <!-- NUEVO PEDIDO -->
     <div id="nuevo-pedido" class="pestaña">
         <h2>Nuevo Pedido</h2>
         <p>Formulario para registrar un nuevo pedido.</p>
     </div>
-
+    
+    <!-- INVENTARIO -->
     <div id="inventario" class="pestaña">
         <h2>Inventario</h2>
         <p>Listado y control de la tabla `producto`.</p>
     </div>
-
+    
+    <!-- HISTORIAL DE PEDIDOS -->
     <div id="historial-pedidos" class="pestaña">
         <h2>Historial de Pedidos</h2>
         <p>Listado de las tablas `pedido` y `producto_pedido`.</p>
     </div>
 
+    <!-- CLIENTES -->
     <div id="clientes" class="pestaña">
         <h2>Clientes</h2>
         <p>Gestión de la tabla `clientes`.</p>
     </div>
 
+    <!-- PROVEEDORES -->    
     <div id="proveedores" class="pestaña">
         <h2>Proveedores</h2>
         <p>Gestión de la tabla `proveedor`.</p>
