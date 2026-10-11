@@ -12,6 +12,8 @@ CREATE TABLE IF NOT EXISTS Proveedor (
     contacto VARCHAR(100) NOT NULL,
     mail VARCHAR(100) NOT NULL
 
+);
+
 -- -----------------------------------------------------
 -- 2. Tabla Clientes
 -- -----------------------------------------------------
