@@ -1,20 +1,18 @@
--- Active: 1791328944833@@127.0.0.1@3306@consultorastock
+-- Active: 1790625178723@@127.0.0.1@3306@consultorastock
 CREATE DATABASE IF NOT EXISTS consultorastock CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 USE consultorastock;
 
--- -----------------------------------------------------
--- 1. Tabla Proveedor
--- -----------------------------------------------------
+-- Tabla Proveedor
 CREATE TABLE IF NOT EXISTS Proveedor (
     id_proveedor INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     contacto VARCHAR(100) NOT NULL,
     mail VARCHAR(100) NOT NULL
 
--- -----------------------------------------------------
--- 2. Tabla Clientes
--- -----------------------------------------------------
+);
+
+-- Tabla Clientes 
 CREATE TABLE IF NOT EXISTS Clientes (
     id_cliente INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     nombre_cliente VARCHAR(150) NOT NULL,
@@ -22,9 +20,7 @@ CREATE TABLE IF NOT EXISTS Clientes (
     telefono VARCHAR(50) NOT NULL
 );
 
--- -----------------------------------------------------
--- 3. Tabla Producto (Sin SKU)
--- -----------------------------------------------------
+-- Tabla Producto
 CREATE TABLE IF NOT EXISTS Producto (
     id_producto INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(150) NOT NULL,
@@ -40,9 +36,7 @@ CREATE TABLE IF NOT EXISTS Producto (
     ON UPDATE CASCADE
 );
 
--- -----------------------------------------------------
--- 4. Tabla Pedido (Cabecera)
--- -----------------------------------------------------
+-- Tabla Pedido
 CREATE TABLE IF NOT EXISTS Pedido (
     id_pedido INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     fecha DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -55,9 +49,7 @@ CREATE TABLE IF NOT EXISTS Pedido (
     ON UPDATE CASCADE
 );
 
--- -----------------------------------------------------
--- 5. Tabla Producto_pedido (Detalle del carrito)
--- -----------------------------------------------------
+-- Tabla Producto_pedido
 CREATE TABLE IF NOT EXISTS Producto_pedido (
     id_pedido INT NOT NULL,
     id_producto INT NOT NULL,
@@ -75,3 +67,21 @@ CREATE TABLE IF NOT EXISTS Producto_pedido (
     ON DELETE RESTRICT
     ON UPDATE CASCADE
 )
+
+
+-- Datos de prueba
+
+INSERT INTO proveedor (nombre, contacto, mail) VALUES
+('Distribuidora Los Mellizos', 'Carlos Gómez', 'ventas@losmellizos.com'),
+('Importadora Repostera S.A.', 'Mariana López', 'contacto@improp.com'),
+('Lácteos y Derivados del Sur', 'Esteban Pérez', 'pedidos@lacteossur.com.ar');
+
+INSERT INTO producto (nombre, precio_compra, precio_venta, categoria, stock, id_proveedor) VALUES
+('Harina 0000 x 1kg', 1.20, 2.00, 'Insumos Básicos', 50, 1),
+('Chocolate Semi-amargo Cobertura x 1kg', 8.50, 14.00, 'Chocolatería', 20, 1),
+('Dulce de Leche Repostero x 5kg', 12.00, 18.50, 'Rellenos', 15, 2),
+('Esencia de Vainilla Profesional x 1L', 3.00, 5.50, 'Esencias y Colorantes', 25, NULL),
+('Molde Desmontable Aluminio 24cm', 6.00, 11.00, 'Utensilios', 10, NULL),
+('Granas de Colores x 100g', 0.80, 2.00, 'Decoración', 40, 2),
+('Crema de Leche x 1L', 4.50, 7.50, 'Lácteos', 30, 1),
+('Azúcar Impalpable x 1kg', 1.50, 2.50, 'Insumos Básicos', 35, NULL);

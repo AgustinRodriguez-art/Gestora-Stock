@@ -22,61 +22,123 @@
     <!-- PANEL PRINCIPAL -->
     <!-- La primera pestaña tiene la clase 'active-content' para que sea la principal -->
     <div id="panel-principal" class="pestaña active-content">
-        <h2>Panel Principal</h2>
-        <p>Resumen general del sistema de stock.</p>
-    <!-- Las 4 cajas principales -->
-    <div class="cajas-resumen"></div>
-        <div class="caja">
-            <h4>VENTAS TOTALES</h4>
-            <p id="total-ventas">$0.00</p>
-        </div>
-        <div class="caja">
-            <h4>PRODUCTOS EN STOCK</h4>
-            <p id="productos-stock">0</p>
-        </div>
-        <div class="caja">
-            <h4>ALERTA STOCK BAJO</h4>
-            <p id="alerta-stock">0</p>
-        </div>
-        <div class="caja">
-            <h4>CLIENTES Y PROVEEDORES </h4>
-            <p id="total-contactos">0 / 0</p>
-        </div>
-    </div>
-    
-    <div class="bloque-tabla">
-        <h3>ULTIMAS OPERACIONES</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>FECHA</th>
-                    <th>CLIENTE</th>
-                    <th>TOTAL</th>
-                </tr>
-            </thead>
-            <tbody id="tabla-ultimas-operaciones">
-                <tr><td colSpan="4">Cargando...</td></tr>
-            </tbody>
-        </table>
-    </div>
+            <h2>Panel Principal</h2>
+            <p>Resumen general del sistema de stock.</p>
+
+            <!-- Las 4 cajas envueltas correctamente -->
+            <div class="cajas-resumen">
+                <div class="caja">
+                    <h4>VENTAS TOTALES</h4>
+                    <p id="total-ventas">$0.00</p>
+                </div>
+                <div class="caja">
+                    <h4>PRODUCTOS EN STOCK</h4>
+                    <p id="productos-stock">0</p>
+                </div>
+                <div class="caja alerta">
+                    <h4>ALERTA STOCK BAJO</h4>
+                    <p id="alerta-stock">0</p>
+                </div>
+                <div class="caja">
+                    <h4>CLIENTES Y PROVEEDORES</h4>
+                    <p id="total-contactos">0 / 0</p>
+                </div>
+            </div>
+
+            <!-- Tabla de últimas operaciones DENTRO de Panel Principal -->
+            <div class="bloque-tabla">
+                <h3>ULTIMAS OPERACIONES</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>FECHA</th>
+                            <th>CLIENTE</th>
+                            <th>TOTAL</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-ultimas-operaciones">
+                        <tr><td colspan="4">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div> 
+
     <!-- NUEVO PEDIDO -->
     <div id="nuevo-pedido" class="pestaña">
-        <h2>Nuevo Pedido</h2>
-        <p>Formulario para registrar un nuevo pedido.</p>
-    </div>
-    
+            <h2>Nuevo Pedido</h2>
+            <p>Formulario para registrar un nuevo pedido.</p>
+
+            <div class="pedido-contenedor">
+                <div class="pedido-izq">
+                    <div class="caja-formulario">
+                        <label>Seleccionar Cliente:</label>
+                        <select id="cliente">
+                            <option value="">-- Seleccionar... --</option>
+                        </select>
+                    </div>       
+                    <div class="caja-formulario">
+                        <label>Agregar productos:</label>
+                        <div id="catalogo-productos" class="grilla-productos"></div>
+                    </div>
+                </div>
+
+                <div class="pedido-der">
+                    <h3>Detalle del carrito</h3>
+                    <div id="lista-carrito">
+                        <p>El carrito esta vacio.</p>
+                    </div>
+                    <p><strong>Total pedido:</strong> <span id="total-pedido">$0.00</span></p>
+                    <button id="btn-guardar-pedido" class="btn-accion">Confirmar pedido</button>
+                </div>
+            </div>
+        </div> 
+
+        
+
     <!-- INVENTARIO -->
     <div id="inventario" class="pestaña">
         <h2>Inventario</h2>
         <p>Listado y control de la tabla `producto`.</p>
+
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Nombre</th>
+                    <th>Precio de compra</th>
+                    <th>Precio de venta</th>
+                    <th>Categoría</th>
+                    <th>Stock</th>
+                    <th>Id de proveedor</th>
+                </tr>
+            </thead>
+
+            <tbody id="tablaProductos"> </tbody>
+
+        </table>
+
+
+
+
+
+
+
     </div>
     
+
+
+
+
     <!-- HISTORIAL DE PEDIDOS -->
     <div id="historial-pedidos" class="pestaña">
         <h2>Historial de Pedidos</h2>
         <p>Listado de las tablas `pedido` y `producto_pedido`.</p>
     </div>
+
+
+
 
     <!-- CLIENTES -->
     <div id="clientes" class="pestaña">
@@ -84,11 +146,19 @@
         <p>Gestión de la tabla `clientes`.</p>
     </div>
 
+
+
+
+
     <!-- PROVEEDORES -->    
     <div id="proveedores" class="pestaña">
         <h2>Proveedores</h2>
         <p>Gestión de la tabla `proveedor`.</p>
     </div>
+
+
+
+
 
     <!-- Vinculacion con JavaScript -->
     <script src="app.js"></script>

@@ -24,16 +24,6 @@ if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
 
 $metodo = $_SERVER["REQUEST_METHOD"];
 
-// El resto de tu código sigue exactamente igual...
-if ($metodo === "POST") {
-    // ... tu lógica de inserción ...
-}
-
-if ($metodo === "GET") {
-    // ... tu lógica de consulta ...
-}
-?>
-
 // Si es POST, agregamos un nuevo producto al stoc
 if ($metodo === "POST") {
     $cuerpo = json_decode(file_get_contents("php://input"), true);
