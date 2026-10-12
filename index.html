@@ -96,24 +96,43 @@
                 </div>
             </div> 
 
-        <!-- NUEVO PEDIDO -->
-        <div id="nuevo-pedido" class="pestaña">
-                <h2>Nuevo Pedido</h2>
-                <p>Formulario para registrar un nuevo pedido.</p>
+            <!-- Tabla de últimas operaciones DENTRO de Panel Principal -->
+            <div class="bloque-tabla">
+                <h3>ULTIMAS OPERACIONES</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>FECHA</th>
+                            <th>CLIENTE</th>
+                            <th>TOTAL</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaUltimasOperaciones">
+                        <tr><td colspan="4">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div> 
 
-                <div class="pedido-contenedor">
-                    <div class="pedido-izq">
-                        <div class="caja-formulario">
-                            <label>Seleccionar Cliente:</label>
-                            <select id="cliente">
-                                <option value="">-- Seleccionar... --</option>
-                            </select>
-                        </div>    
-                        
-                        <div class="caja-formulario">
-                            <label>Agregar productos:</label>
-                            <div id="catalogo-productos" class="grilla-productos"></div>
-                        </div>
+    <!-- NUEVO PEDIDO -->
+    <div id="nuevo-pedido" class="pestaña">
+            <h2>Nuevo Pedido</h2>
+            <p>Formulario para registrar un nuevo pedido.</p>
+
+            <div class="pedido-contenedor">
+                <div class="pedido-izq">
+                    <div class="caja-formulario">
+                        <label>Seleccionar Cliente:</label>
+                        <select id="cliente">
+                            <option value="">-- Seleccionar... --</option>
+                        </select>
+                    </div>    
+                    
+                    
+                    <div class="caja-formulario">
+                        <label>Agregar productos:</label>
+                        <div id="catalogo-productos" class="grilla-productos"></div>
                     </div>
 
                     <div class="pedido-der">
@@ -167,80 +186,205 @@
             <h2>Historial de Pedidos</h2>
             <p>Listado de las tablas `pedido` y `producto_pedido`.</p>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>Id</th>
-                        <th>Cliente</th>
-                        <th>Fecha</th>
-                        <th>Total Pedido</th>
-                        <th>Productos</th>
-                    </tr>
-                </thead>
-                <tbody id="tablaPedidos" class="tabla"> </tbody>
-            </table>
+        
+
+    <!-- INVENTARIO -->
+    <div id="inventario" class="pestaña">
+        <h2>Inventario</h2>
+        <p>Listado y control de la tabla `producto`.</p>
+
+        <button class="btn-desplegar-busq" onclick="toggleBusqueda('busquedaInventario')">Buscar</button>
+        
+        <div id="busquedaInventario" class="busquedaDesplegable oculto">
+            <input type="text" id="filtroProdNombre" placeholder="Filtrar por nombre o categoría...">
+            <input type="text" id="filtroProdPrecio" placeholder="Filtrar por precio de compra...">
+            <input type="text" id="filtroProdPrecio" placeholder="Filtrar por precio de venta...">
+            <input type="text" id="filtroProdStock" placeholder="Filtrar por stock...">
+            <input type="text" id="filtroProdIdProv" placeholder="Filtrar por ID proveedor...">
+            
+            <select id="ordenProductos">
+                <option value="asc">ID: Menor a Mayor</option>
+                <option value="desc">ID: Mayor a Menor</option>
+            </select>
         </div>
 
-        <!-- CLIENTES -->
-        <div id="clientes" class="pestaña">
-            <h2>Clientes</h2>
-            <p>Gestión de la tabla `clientes`.</p>
+        <!-- Boton para desplegar el formulario -->
+        <button class="btn-desplegar-form" onclick="toggleFormulario('formProductoContainer')">Agregar Producto</button>
 
-            <button class="btn-desplegar-form" onclick="toggleFormulario('formClientes-container')">Agregar Cliente</button>
+        <div id="formProductoContainer" class="formDesplegable oculto">
+            <form id="formProducto">
+                <input type="text" id="campoNombre" placeholder="Nombre" required>
+                <input type="number" id="campoPrecioCompra" placeholder="Precio de compra" required>
+                <input type="number" id="campoPrecioVenta" placeholder="Precio de venta" required>
+                <input type="text" id="campoCategoria" placeholder="Categoría" required>
+                <input type="number" id="campoStock" placeholder="Stock" required>
+                <input type="number" id="campoIdProveedor" placeholder="Id de proveedor" required>
+                <button type="submit">Agregar Producto</button>
+            </form>
+        </div>
+        <hr>
+        <table>
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Nombre</th>
+                    <th>Precio de compra</th>
+                    <th>Precio de venta</th>
+                    <th>Categoría</th>
+                    <th>Stock</th>
+                    <th>Id de proveedor</th>
+                </tr>
+            </thead>
 
-            <div id="formClientes-container" class="form-desplegable oculto">
-                <form id="formClientes">
-                    <input type="text" id="campoNombreCliente" placeholder="Nombre" required>
-                    <input type="text" id="campoDireccion" placeholder="Dirección" required>
-                    <input type="tel" id="campoTelefono" placeholder="Teléfono" required>
-                    <button type="submit">Agregar Cliente</button>
-                </form>
-            </div>
-            <hr>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Id</th>
-                        <th>Nombre</th>
-                        <th>Dirección</th>
-                        <th>Teléfono</th>
-                    </tr>
-                </thead>
-                <tbody id="tablaClientes" class="tabla"> </tbody>
-            </table>
+            <tbody id="tablaProductos" class="tabla"> </tbody>
+
+        </table>
+
+    </div>
+    
+
+
+
+
+    <!-- HISTORIAL DE PEDIDOS -->
+    <div id="historial-pedidos" class="pestaña">
+        <h2>Historial de Pedidos</h2>
+        <p>Listado de las tablas `pedido` y `producto_pedido`.</p>
+        
+        <button class="btn-desplegar-busq" onclick="toggleBusqueda('busquedaPedidos')">Buscar</button>
+        
+        <div id="busquedaPedidos" class="busquedaDesplegable oculto">
+            <input type="text" id="filtroPedidoCliente" placeholder="Filtrar por cliente...">
+            <input type="text" id="filtroPedidoFecha" placeholder="Filtrar por fecha...">
+            <input type="number" id="filtroPedidoTotal" placeholder="Filtrar por precio total...">
+            
+            <select id="ordenPedidos">
+                <option value="desc">ID: Mayor a Menor</option>
+                <option value="asc">ID: Menor a Mayor</option>
+            </select>
         </div>
 
-        <!-- PROVEEDORES -->    
-        <div id="proveedores" class="pestaña">
-            <h2>Proveedores</h2>
-            <p>Gestión de la tabla `proveedor`.</p>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Cliente</th>
+                    <th>Fecha</th>
+                    <th>Total Pedido</th>
+                    <th>Productos</th>
+                </tr>
+            </thead>
 
-            <button class="btn-desplegar-form" onclick="toggleFormulario('formProveedores-container')">Agregar Proveedor</button>
+            <tbody id="tablaPedidos" class="tabla"> </tbody>
 
-            <div id="formProveedores-container" class="form-desplegable oculto">
-                <form id="formProveedores">
-                    <input type="text" id="campoNombreProveedor" placeholder="Nombre" required>
-                    <input type="text" id="campoContacto" placeholder="Contacto" required>
-                    <input type="email" id="campoMail" placeholder="Correo electrónico" required>
-                    <button type="submit">Agregar Proveedor</button>
-                </form>
-            </div>
-            <hr>
-            <table>
-                <thead>
-                    <tr>
-                        <th>id_proveedor</th>
-                        <th>nombre_proveedor</th>
-                        <th>contacto</th>
-                        <th>mail</th>
-                    </tr>
-                </thead>
-                <tbody id="tablaProveedores" class="tabla"> </tbody>
-            </table>
+        </table>
+    </div>
+
+
+
+
+    <!-- CLIENTES -->
+    <div id="clientes" class="pestaña">
+        <h2>Clientes</h2>
+        <p>Gestión de la tabla `clientes`.</p>
+
+        <button class="btn-desplegar-busq" onclick="toggleBusqueda('busquedaClientes')">Buscar</button>
+
+        <div id="busquedaClientes" class="busquedaDesplegable oculto">
+            <input type="text" id="filtroClienteNombre" placeholder="Filtrar por nombre...">
+            <input type="text" id="filtroClienteDireccion" placeholder="Filtrar por dirección...">
+            <input type="text" id="filtroClienteTelefono" placeholder="Filtrar por teléfono...">
+            
+            <select id="ordenClientes">
+                <option value="asc">ID: Menor a Mayor</option>
+                <option value="desc">ID: Mayor a Menor</option>
+            </select>
         </div>
+
+        <!-- Boton para desplegar el formulario -->
+        <button class="btn-desplegar-form" onclick="toggleFormulario('formClientesContainer')">Agregar Cliente</button>
+
+        <div id="formClientesContainer" class="formDesplegable oculto">
+            <form id="formClientes">
+                <input type="text" id="campoNombreCliente" placeholder="Nombre" required>
+                <input type="text" id="campoDireccion" placeholder="Dirección" required>
+                <input type="tel" id="campoTelefono" placeholder="Teléfono" required>
+                <button type="submit">Agregar Cliente</button>
+            </form>
+        </div>
+        <hr>
+        <table>
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Nombre</th>
+                    <th>Dirección</th>
+                    <th>Teléfono</th>
+                </tr>
+            </thead>
+
+            <tbody id="tablaClientes" class="tabla"> </tbody>
+
+        </table>
+
+
+
 
     </div>
 
+
+
+
+
+    <!-- PROVEEDORES -->    
+    <div id="proveedores" class="pestaña">
+        <h2>Proveedores</h2>
+        <p>Gestión de la tabla `proveedor`.</p>
+        
+        <button class="btn-desplegar-busq" onclick="toggleBusqueda('busquedaProveedores')">Buscar</button>
+
+        <div id="busquedaProveedores" class="busquedaDesplegable oculto">
+            <input type="text" id="filtroProvNombre" placeholder="Filtrar por nombre...">
+            <input type="text" id="filtroProvContacto" placeholder="Filtrar por contacto...">
+            <input type="text" id="filtroProvMail" placeholder="Filtrar por mail...">
+            
+            <select id="ordenProveedores">
+                <option value="asc">ID: Menor a Mayor</option>
+                <option value="desc">ID: Mayor a Menor</option>
+            </select>
+        </div>
+        <!-- Boton para desplegar el formulario -->
+        <button class="btn-desplegar-form" onclick="toggleFormulario('formProveedoresContainer')">Agregar Proveedor</button>
+
+        <div id="formProveedoresContainer" class="formDesplegable oculto">
+            <form id="formProveedores">
+                <input type="text" id="campoNombreProveedor" placeholder="Nombre" required>
+                <input type="text" id="campoContacto" placeholder="Contacto" required>
+                <input type="email" id="campoMail" placeholder="Correo electrónico" required>
+                <button type="submit">Agregar Proveedor</button>
+            </form>
+        </div>
+        <hr>
+        <table>
+            <thead>
+                <tr>
+                    <th>id_proveedor</th>
+                    <th>nombre_proveedor</th>
+                    <th>contacto</th>
+                    <th>mail</th>
+                </tr>
+            </thead>
+
+            <tbody id="tablaProveedores" class="tabla"> </tbody>
+
+        </table>
+    </div>
+
+
+
+
+    <!-- Vinculacion con JavaScript -->
     <script src="app.js"></script>
 </body>
 </html>

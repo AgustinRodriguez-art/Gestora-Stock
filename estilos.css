@@ -490,3 +490,7 @@ form button[type="submit"]:hover {
 }
 
 
+/* Estilos para el formulario desplegable */
+.oculto {
+  display: none;
+}

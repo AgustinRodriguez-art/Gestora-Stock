@@ -1,4 +1,3 @@
-// URLs base para comunicarnos con el backend de cada seccion
 const URL_API = "http://localhost/GestoraStock/BACKEND/api_productos.php";
 const URL_API2 = "http://localhost/GestoraStock/BACKEND/api_clientes.php";
 const URL_API3 = "http://localhost/GestoraStock/BACKEND/api_pedidos.php";
@@ -12,9 +11,13 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelector("#tablaProductos").addEventListener("click", manejarProductos);
     document.querySelector("#tablaProveedores").addEventListener("click", manejarProveedores);
     document.querySelector("#tablaPedidos").addEventListener("click", manejarPedidos);
+
+    document.querySelector("#formClientes").addEventListener("submit", crearCliente);
+    document.querySelector("#formProducto").addEventListener("submit", crearProducto);
+    document.querySelector("#formProveedores").addEventListener("submit", crearProveedor);
 });
 
-// Funcion generica para hacer un fetch rapido de cualquier entidad y pintarla en su tabla
+// Función unificada para hacer fetch de cualquier entidad
 async function cargarEntidad(url, selectorTbody, tipo) {
     try {
         const respuesta = await fetch(url);
@@ -34,7 +37,6 @@ function renderizarTabla(datos, selectorTbody, tipo) {
     
     datos.forEach(item => {
         const fila = document.createElement("tr");
-        // Buscamos el ID correcto segun la tabla que toque
         fila.dataset.id = item.id || item.id_producto || item.id_cliente || item.id_proveedor || item.id_pedido;
         
         if (tipo === "productos") {
@@ -74,16 +76,17 @@ function renderizarTabla(datos, selectorTbody, tipo) {
                 </td>
             `;
         } else if (tipo === "pedidos") {
-            let listaProductosHTML = ""; 
+            let listaProductosHTML = ""; // Variable string para almacenar la lista de productos en HTML
             if (item.productos && item.productos.length > 0) {
-                // Si el pedido tiene productos, armamos una lista bonita con ellos
+                // Genera la lista de productos en formato HTML
                 listaProductosHTML = "<ul>";
                 item.productos.forEach(prod => {
                     listaProductosHTML += `<li>${prod.nombre_producto} (Cant: ${prod.cantidad})</li>`; 
+                    // Por cada producto, se agrega un <li> con su nombre y cantidad
                 });
                 listaProductosHTML += "</ul>";
             } else {
-                listaProductosHTML = "Sin productos"; 
+                listaProductosHTML = "Sin productos"; // Si no hay productos se muestra un mensaje
             }
 
             fila.innerHTML = `
@@ -102,7 +105,7 @@ function renderizarTabla(datos, selectorTbody, tipo) {
     });
 }
 
-// Revisa que pestana esta abierta actualmente para cargar sus datos automaticamente
+// Función auxiliar que detecta qué pestaña está abierta actualmente
 function verificarYMostrarPestanaActiva() {
     const panelActivo = document.querySelector('.pestaña.active-content');
     
@@ -121,32 +124,39 @@ function verificarYMostrarPestanaActiva() {
     }
 }
 
-// Cambia de pestana de forma dinamica (oculta las demas y muestra la elegida)
+// Función para cambiar de pestaña
 function cambiarPestana(event, idTabSeleccionada) {
+    // Oculta todos los contenidos de las pestañas
     const paneles = document.querySelectorAll('.pestaña');
     paneles.forEach(panel => {
         panel.classList.remove('active-content');
     });
 
+    // Desactiva la clase 'active' de todos los botones
     const botones = document.querySelectorAll('.pestaña-btn');
     botones.forEach(boton => {
         boton.classList.remove('active');
     });
 
+    // Muestra el contenido de la pestaña seleccionada
     const panelSeleccionado = document.getElementById(idTabSeleccionada);
     if (panelSeleccionado) {
         panelSeleccionado.classList.add('active-content');
     }
 
+    // Marca el botón de la pestaña seleccionada como activo
     if (event && event.currentTarget) {
         event.currentTarget.classList.add('active');
     }
 
+    // Cada vez que cambia de pestaña, detecta el panel activo y carga sus datos
     verificarYMostrarPestanaActiva();
 }
 
 
-// MANEJADORES DE EVENTOS PARA CADA TABLA
+
+
+// MANEJADORES DE EVENTOS
 
 function manejarClientes(evento) {
     if (evento.target.classList.contains("btn-borrar")) borrarRegistro(evento, URL_API2);
@@ -168,13 +178,13 @@ function manejarPedidos(evento) {
 }
 
 
-// FUNCION GENERAL PARA BORRAR REGISTROS (DELETE)
+// FUNCION DELETE
 
 async function borrarRegistro(evento, urlApi) {
     const fila = evento.target.closest("tr");
     const id = fila.dataset.id;
 
-    if (!confirm("Estas seguro de eliminar este registro?")) return;
+    if (!confirm("¿Estás seguro de eliminar este registro?")) return;
 
     try {
         const respuesta = await fetch(`${urlApi}?id=${id}`, {
@@ -182,7 +192,7 @@ async function borrarRegistro(evento, urlApi) {
         });
 
         if (respuesta.ok) {
-            fila.remove(); // Adios registro de la vista al instante
+            fila.remove(); // Borra la fila visualmente de la tabla
         }
     } catch (error) {
         console.error("Error al borrar el registro:", error);
@@ -190,7 +200,8 @@ async function borrarRegistro(evento, urlApi) {
 }
 
 
-// FUNCIONES DE EDICION (PUT) CON PROMPTS
+
+// FUNCIONES DE EDICIÓN (PUT)
 
 async function editarCliente(evento) {
     const fila = evento.target.closest("tr");
@@ -201,9 +212,9 @@ async function editarCliente(evento) {
 
     const nuevoNombre = prompt("Nuevo nombre:", nombreActual);
     if (nuevoNombre === null) return;
-    const nuevaDireccion = prompt("Nueva direccion:", direccionActual);
+    const nuevaDireccion = prompt("Nueva dirección:", direccionActual);
     if (nuevaDireccion === null) return;
-    const nuevoTelefono = prompt("Nuevo telefono:", telefonoActual);
+    const nuevoTelefono = prompt("Nuevo teléfono:", telefonoActual);
     if (nuevoTelefono === null) return;
 
     try {
@@ -218,7 +229,7 @@ async function editarCliente(evento) {
         });
 
         if (respuesta.ok) {
-            // Actualizamos la fila sin recargar toda la pagina
+            // Actualiza la vista sin recargar
             fila.children[1].textContent = nuevoNombre;
             fila.children[2].textContent = nuevaDireccion;
             fila.children[3].textContent = nuevoTelefono;
@@ -231,18 +242,19 @@ async function editarCliente(evento) {
 async function editarProducto(evento) {
     const fila = evento.target.closest("tr");
     const id = fila.dataset.id;
-    const precioActual = fila.children[3].textContent; 
-    const stockActual = fila.children[5].textContent;  
+    const precioActual = fila.children[3].textContent; // Columna de precio venta
+    const stockActual = fila.children[5].textContent;  // Columna de stock
 
+    // Pedir nuevos valores
     const nuevoPrecio = prompt("Nuevo precio de venta:", precioActual);
     if (nuevoPrecio === null) return;
 
     const nuevoStock = prompt("Actualizar stock:", stockActual);
     if (nuevoStock === null) return;
 
-    // Validamos que lo ingresado sea numerico de verdad
+    // Validar que sean números válidos
     if (isNaN(nuevoPrecio) || isNaN(nuevoStock) || nuevoPrecio.trim() === "" || nuevoStock.trim() === "") {
-        alert("Por favor, ingresa solo valores numericos validos.");
+        alert("Por favor, ingresa solo valores numéricos válidos.");
         return;
     }
 
@@ -301,9 +313,102 @@ async function editarProveedor(evento) {
 }
 
 
-// CONTROL DE FORMULARIOS
 
+
+// Crear instancias
 function toggleFormulario(idContenedor) {
     const contenedor = document.getElementById(idContenedor);    
     contenedor.classList.toggle("oculto");
 }
+
+async function crearCliente(evento) {
+    evento.preventDefault();
+    
+    const nuevoCliente = {
+        nombre_cliente: document.querySelector("#campoNombreCliente").value,
+        direccion: document.querySelector("#campoDireccion").value,
+        telefono: document.querySelector("#campoTelefono").value
+    };
+
+    try {
+        const respuesta = await fetch(URL_API2, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(nuevoCliente)
+        });
+
+        if (respuesta.ok) {
+            document.querySelector("#formClientes").reset(); // Limpia el formulario
+            toggleFormulario('formClientes-container');      // Oculta el formulario desplegable
+            cargarEntidad(URL_API2, '#tablaClientes', 'clientes'); // Recarga la tabla
+        }
+    } catch (error) {
+        console.error("Error al crear cliente:", error);
+    }
+}
+
+
+async function crearProducto(evento) {
+    evento.preventDefault();
+
+    const nuevoProducto = {
+        nombre: document.querySelector("#campoNombre").value,
+        precio_compra: parseFloat(document.querySelector("#campoPrecioCompra").value) || 0,
+        precio_venta: parseFloat(document.querySelector("#campoPrecioVenta").value),
+        categoria: document.querySelector("#campoCategoria").value,
+        stock: parseInt(document.querySelector("#campoStock").value),
+        id_proveedor: parseInt(document.querySelector("#campoIdProveedor").value)
+    };
+
+    try {
+        const respuesta = await fetch(URL_API, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(nuevoProducto)
+        });
+
+        if (respuesta.ok) {
+            document.querySelector("#formProducto").reset();
+            toggleFormulario('formProducto-container');
+            cargarEntidad(URL_API, '#tablaProductos', 'productos');
+        }
+    } catch (error) {
+        console.error("Error al crear producto:", error);
+    }
+}
+
+async function crearProveedor(evento) {
+    evento.preventDefault();
+
+    const nuevoProveedor = {
+        nombre: document.querySelector("#campoNombreProveedor").value,
+        contacto: document.querySelector("#campoContacto").value,
+        mail: document.querySelector("#campoMail").value
+    };
+
+    try {
+        const respuesta = await fetch(URL_API4, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(nuevoProveedor)
+        });
+
+        if (respuesta.ok) {
+            document.querySelector("#formProveedores").reset();
+            toggleFormulario('formProveedores-container');
+            cargarEntidad(URL_API4, '#tablaProveedores', 'proveedores');
+        }
+    } catch (error) {
+        console.error("Error al crear proveedor:", error);
+    }
+}
+
+
+
+function toggleBusqueda(idContenedor) {
+    const contenedor = document.getElementById(idContenedor);    
+    if (contenedor) {
+        contenedor.classList.toggle("oculto");
+    }
+}
+
