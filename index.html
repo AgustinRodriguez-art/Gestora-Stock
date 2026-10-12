@@ -57,7 +57,7 @@
                             <th>TOTAL</th>
                         </tr>
                     </thead>
-                    <tbody id="tabla-ultimas-operaciones">
+                    <tbody id="tablaUltimasOperaciones">
                         <tr><td colspan="4">Cargando...</td></tr>
                     </tbody>
                 </table>
@@ -76,7 +76,9 @@
                         <select id="cliente">
                             <option value="">-- Seleccionar... --</option>
                         </select>
-                    </div>       
+                    </div>    
+                    
+                    
                     <div class="caja-formulario">
                         <label>Agregar productos:</label>
                         <div id="catalogo-productos" class="grilla-productos"></div>
@@ -94,29 +96,115 @@
             </div>
         </div> 
 
+        
+
     <!-- INVENTARIO -->
     <div id="inventario" class="pestaña">
         <h2>Inventario</h2>
         <p>Listado y control de la tabla `producto`.</p>
+
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Nombre</th>
+                    <th>Precio de compra</th>
+                    <th>Precio de venta</th>
+                    <th>Categoría</th>
+                    <th>Stock</th>
+                    <th>Id de proveedor</th>
+                </tr>
+            </thead>
+
+            <tbody id="tablaProductos" class="tabla"> </tbody>
+
+        </table>
+
     </div>
     
+
+
+
+
     <!-- HISTORIAL DE PEDIDOS -->
     <div id="historial-pedidos" class="pestaña">
         <h2>Historial de Pedidos</h2>
         <p>Listado de las tablas `pedido` y `producto_pedido`.</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Cliente</th>
+                    <th>Fecha</th>
+                    <th>Total Pedido</th>
+                    <th>Productos</th>
+                </tr>
+            </thead>
+
+            <tbody id="tablaPedidos" class="tabla"> </tbody>
+
+        </table>
     </div>
+
+
+
 
     <!-- CLIENTES -->
     <div id="clientes" class="pestaña">
         <h2>Clientes</h2>
         <p>Gestión de la tabla `clientes`.</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Nombre</th>
+                    <th>Dirección</th>
+                    <th>Teléfono</th>
+                </tr>
+            </thead>
+
+            <tbody id="tablaClientes" class="tabla"> </tbody>
+
+        </table>
+
+
+
+
     </div>
+
+
+
+
 
     <!-- PROVEEDORES -->    
     <div id="proveedores" class="pestaña">
         <h2>Proveedores</h2>
         <p>Gestión de la tabla `proveedor`.</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>id_proveedor</th>
+                    <th>nombre_proveedor</th>
+                    <th>contacto</th>
+                    <th>mail</th>
+                </tr>
+            </thead>
+
+            <tbody id="tablaProveedores" class="tabla"> </tbody>
+
+        </table>
+
+
+
     </div>
+
+
+
+
 
     <!-- Vinculacion con JavaScript -->
     <script src="app.js"></script>

@@ -1,5 +1,6 @@
 <?php
-// Datos para conectar a la base de datos local
+// C:\xampp\htdocs\GestoraStock\BACKEND\config.php
+
 define('DB_HOST', 'localhost');
 define('DB_USER', 'root');
 define('DB_PASS', '');

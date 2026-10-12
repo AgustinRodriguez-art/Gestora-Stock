@@ -96,6 +96,21 @@ if ($metodo === "GET") {
          JOIN clientes c ON p.id_cliente = c.id_cliente"
     );
     $pedidos = $consulta->fetchAll(PDO::FETCH_ASSOC);
+
+    // Para cada pedido, buscamos sus productos en la tabla intermedia (producto_pedido + producto)
+    foreach ($pedidos as &$pedido) {
+        $stmtProd = $conexion->prepare(
+            "SELECT pp.cantidad, pp.precio_unitario, pr.nombre AS nombre_producto
+             FROM producto_pedido pp
+             JOIN producto pr ON pp.id_producto = pr.id_producto
+             WHERE pp.id_pedido = :id_pedido"
+        );
+        $stmtProd->execute([":id_pedido" => $pedido["id_pedido"]]);
+        // Guardamos los productos dentro de una nueva propiedad llamada "productos"
+        $pedido["productos"] = $stmtProd->fetchAll(PDO::FETCH_ASSOC);
+    }
+    unset($pedido);
+
     echo json_encode($pedidos, JSON_UNESCAPED_UNICODE);
     exit();
 }
