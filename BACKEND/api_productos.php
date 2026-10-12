@@ -63,4 +63,79 @@ if ($metodo === "GET") {
     echo json_encode($productos, JSON_UNESCAPED_UNICODE);
     exit();
 }
+
+
+
+
+
+
+/* PUT - Editar producto */
+if ($metodo === "PUT") {
+    if (!isset($_GET["id"])) {
+        http_response_code(400);
+        echo json_encode(["error" => "Falta el id del producto"]);
+        exit();
+    }
+
+    $cuerpo = json_decode(file_get_contents("php://input"), true);
+
+    // Validamos los campos que permites actualizar desde tu frontend (precio y stock)
+    if (!isset($cuerpo["precio_venta"]) || !isset($cuerpo["stock"])) {
+        http_response_code(400);
+        echo json_encode(["error" => "Faltan datos obligatorios para actualizar"]);
+        exit();
+    }
+
+    $consulta = $conexion->prepare(
+        "UPDATE producto
+         SET precio_venta = :precio_venta,
+             stock = :stock
+         WHERE id_producto = :id"
+    );
+
+    $consulta->execute([
+        ":precio_venta" => $cuerpo["precio_venta"],
+        ":stock"        => $cuerpo["stock"],
+        ":id"           => $_GET["id"]
+    ]);
+
+    http_response_code(200);
+    echo json_encode([
+        "success"      => true,
+        "id_producto"  => (int)$_GET["id"],
+        "precio_venta" => $cuerpo["precio_venta"],
+        "stock"        => $cuerpo["stock"]
+    ], JSON_UNESCAPED_UNICODE);
+
+    exit();
+}
+
+/* DELETE - Borrar producto */
+if ($metodo === "DELETE") {
+    if (!isset($_GET["id"])) {
+        http_response_code(400);
+        echo json_encode(["error" => "Falta el id del producto"]);
+        exit();
+    }
+
+    $consulta = $conexion->prepare(
+        "DELETE FROM producto
+         WHERE id_producto = :id"
+    );
+
+    $consulta->execute([
+        ":id" => $_GET["id"]
+    ]);
+
+    http_response_code(204);
+    exit();
+}
+
+
+
+
+
+
+
+
 ?>
