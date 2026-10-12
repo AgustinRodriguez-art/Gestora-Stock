@@ -6,10 +6,15 @@ const URL_API4 = "http://localhost/GestoraStock/BACKEND/api_proveedores.php";
 document.addEventListener("DOMContentLoaded", () => {
     // Al cargar la página, detecta y muestra el contenido de la pestaña inicial activa
     verificarYMostrarPestanaActiva();
+
     document.querySelector("#tablaClientes").addEventListener("click", manejarClientes);
     document.querySelector("#tablaProductos").addEventListener("click", manejarProductos);
     document.querySelector("#tablaProveedores").addEventListener("click", manejarProveedores);
     document.querySelector("#tablaPedidos").addEventListener("click", manejarPedidos);
+
+    document.querySelector("#formClientes").addEventListener("submit", crearCliente);
+    document.querySelector("#formProducto").addEventListener("submit", crearProducto);
+    document.querySelector("#formProveedores").addEventListener("submit", crearProveedor);
 });
 
 // Función unificada para hacer fetch de cualquier entidad
@@ -310,9 +315,100 @@ async function editarProveedor(evento) {
 
 
 
-// BOTONES DE FORMULARIOS
+// Crear instancias
 function toggleFormulario(idContenedor) {
     const contenedor = document.getElementById(idContenedor);    
     contenedor.classList.toggle("oculto");
+}
+
+async function crearCliente(evento) {
+    evento.preventDefault();
+    
+    const nuevoCliente = {
+        nombre_cliente: document.querySelector("#campoNombreCliente").value,
+        direccion: document.querySelector("#campoDireccion").value,
+        telefono: document.querySelector("#campoTelefono").value
+    };
+
+    try {
+        const respuesta = await fetch(URL_API2, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(nuevoCliente)
+        });
+
+        if (respuesta.ok) {
+            document.querySelector("#formClientes").reset(); // Limpia el formulario
+            toggleFormulario('formClientes-container');      // Oculta el formulario desplegable
+            cargarEntidad(URL_API2, '#tablaClientes', 'clientes'); // Recarga la tabla
+        }
+    } catch (error) {
+        console.error("Error al crear cliente:", error);
+    }
+}
+
+
+async function crearProducto(evento) {
+    evento.preventDefault();
+
+    const nuevoProducto = {
+        nombre: document.querySelector("#campoNombre").value,
+        precio_compra: parseFloat(document.querySelector("#campoPrecioCompra").value) || 0,
+        precio_venta: parseFloat(document.querySelector("#campoPrecioVenta").value),
+        categoria: document.querySelector("#campoCategoria").value,
+        stock: parseInt(document.querySelector("#campoStock").value),
+        id_proveedor: parseInt(document.querySelector("#campoIdProveedor").value)
+    };
+
+    try {
+        const respuesta = await fetch(URL_API, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(nuevoProducto)
+        });
+
+        if (respuesta.ok) {
+            document.querySelector("#formProducto").reset();
+            toggleFormulario('formProducto-container');
+            cargarEntidad(URL_API, '#tablaProductos', 'productos');
+        }
+    } catch (error) {
+        console.error("Error al crear producto:", error);
+    }
+}
+
+async function crearProveedor(evento) {
+    evento.preventDefault();
+
+    const nuevoProveedor = {
+        nombre: document.querySelector("#campoNombreProveedor").value,
+        contacto: document.querySelector("#campoContacto").value,
+        mail: document.querySelector("#campoMail").value
+    };
+
+    try {
+        const respuesta = await fetch(URL_API4, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(nuevoProveedor)
+        });
+
+        if (respuesta.ok) {
+            document.querySelector("#formProveedores").reset();
+            toggleFormulario('formProveedores-container');
+            cargarEntidad(URL_API4, '#tablaProveedores', 'proveedores');
+        }
+    } catch (error) {
+        console.error("Error al crear proveedor:", error);
+    }
+}
+
+
+
+function toggleBusqueda(idContenedor) {
+    const contenedor = document.getElementById(idContenedor);    
+    if (contenedor) {
+        contenedor.classList.toggle("oculto");
+    }
 }
 
