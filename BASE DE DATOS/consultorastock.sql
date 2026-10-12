@@ -1,8 +1,5 @@
--- Active: 1790625178723@@127.0.0.1@3306@consultorastock
-<<<<<<< HEAD
+-- Active: 1791815637833@@127.0.0.1@3306
 DROP DATABASE IF EXISTS consultorastock;
-=======
->>>>>>> 077df21f64c4b6bf42c98866a56c606bd49bf29d
 CREATE DATABASE IF NOT EXISTS consultorastock CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 USE consultorastock;
@@ -72,7 +69,14 @@ CREATE TABLE IF NOT EXISTS Producto_pedido (
     ON UPDATE CASCADE
 )
 
-
+-- Tabla Usuarios
+CREATE TABLE IF NOT EXISTS usuarios (
+    id_usuario INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(190) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    activo TINYINT(1) NOT NULL DEFAULT 1,
+    creando_en DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 
 
 -- INSERCION DE DATOS DE PRUEBA --
