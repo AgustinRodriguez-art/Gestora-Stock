@@ -1,5 +1,4 @@
 /* Oculta todas las pestañas por defecto */
-
 * {
   box-sizing: border-box;
   margin: 0;
@@ -44,7 +43,7 @@ body {
   background-color: #e9ecef;
 }
 
-
+/* Color azul para el boton de la pestaña activa */
 .pestaña-btn.active {
   font-weight: bold;
   background-color: #007bff;
@@ -60,434 +59,49 @@ body {
   display: none;
 }
 
-.pestaña.active-content {
-  display: block;
-}
-
-h2 {
-  border-bottom: 2px solid #333333;
-  padding-bottom: 10px;
-  margin-bottom: 24px;
-}
-
-p {
-  color: #718096;
-  font-size: 13px;
-  margin: 0;
-}
-
-hr {
-  border: none;
-  border-top: 1px solid #e2e8f0;
-  margin: 15px 0;
-}
-
-.pestaña {
-  display: none;
-}
-
 /* Muestra la pestaña que tenga la clase activa */
 .pestaña.active-content {
   display: block;
 }
 
 .cajas-resumen {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin: 25px;
+  display: flex;
+  gap: 15px;
+  margin: 20px 0;
 }
 
 .caja {
-  background: #ffffff;
-  border: 2px solid #333333;
-  border-radius: 12px;
-  padding: 20px 10px;
+  flex: 1;
+  padding: 20px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
   text-align: center;
 }
 
 .caja h4 {
-  font-size: 11px;
-  color: #4a5568;
-  margin-bottom: 10px;
-  font-weight: 700;
+  font-size: 12px;
+  margin-bottom: 8px;
+  color: #666;
 }
 
 .caja p {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: bold;
-  color: #1a202c;
 }
 
 .caja.alerta {
   border-color: #dc3545;
-  
-}
-
-.caja.alerta h4,
-.caja.alerta p {
   color: #dc3545;
-}
-
-.bloque-tabla {
-  background: #ffffff;
-  border: 2px solid #333333;
-  border-radius: 12px;
-  padding: 20px;
-  margin-top: 20px;
-
-}
-
-.bloque-tabla h3 {
-  font-size: 14px;
-  font-weight: 800;
-  margin-bottom: 15px;
-  color: #1a202c;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  background: #ffffff;
+  background-color: #fff;
+  margin-top: 15px;
 }
 
-th, td {
-  padding: 12px 14px;
-  text-align: left;
-  font-size: 13px;
-  border-bottom: 1px solid #edf2f7;
-}
-
-th {
-  background-color: #f7fafc;
-  color: #2d3748;
-  font-weight: 700;
-  border-top: 1px solid #e2e8f0;
-}
-
-tbody tr:last-child td {
-    border-bottom: none;
-
-}
-
-
-
-/* Estilos para el formulario desplegable */
-.oculto {
-  display: none !important;
-}
-
-.btn-desplegar-busq,
-.btn-desplegar-form {
-  padding: 8px 16px;
-  font-size: 14px;
-  font-weight: bold;
-  border-radius: 6px;
-  border: 1px solid #cbd5e0;
-  cursor: pointer;
-  background-color: #edf2f7;
-  color: #2d3748;
-  margin-right: 8px;
-  margin-bottom: 12px;
-}
-
-
-.btn-desplegar-form {
-  background-color: #ebf8ff;
-  border-color: #bee3f8;
-  color: #2b6cb0;
-}
-
-.btn-desplegar-busq:hover {
-  background-color: #e2e8f0;
-}
-
-.btn-desplegar-form:hover {
-  background-color: #bee3f8;
-}
-
-.busquedaDesplegable,
-.formDesplegable {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 15px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.busquedaDesplegable {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-}
-
-.busquedaDesplegable input,
-.busquedaDesplegable select {
-  padding: 8px 12px;
-  font-size: 14px;
-  border-radius: 6px;
-  border: 1px solid #cbd5e0;
-  min-width: 170px;
-}
-
-form {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-form input {
-  padding: 8px 12px;
-  border: 1px solid #cbd5e0;
-  border-radius: 6px;
-  flex: 1;
-  min-width: 150px;
-  font-size: 13px;
-}
-
-form button[type="submit"] {
-  padding: 8px 20px;
-  font-weight: bold;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  background-color: #3182ce;
-  color: #ffffff;
-}
-
-form button[type="submit"]:hover {
-  background-color: #2b6cb0;
-}
-
-.pedido-contenedor {
-  display: flex;
-  gap: 24px;
-}
-
-.pedido-izq {
-  flex: 1.3;
-}
-
-.pedido-der {
-  flex: 0.9;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  min-height: 420px;
-}
-
-.caja-formulario {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 16px;
-}
-
-.caja-formulario label {
-  display: block;
-  font-weight: bold;
-  font-size: 13px;
-  margin-bottom: 8px;
-  color: #4a5568;
-}
-
-.caja-formulario select {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #cbd5e0;
-  border-radius: 6px;
-  font-size: 13px;
-}
-
-.grilla-productos {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 10px;
-  max-height: 280px;
-  overflow-y: auto;
-  margin-top: 10px;
-  padding: 4px;
-}
-
-.prod-item {
-  background: #f7fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  padding: 10px;
-  text-align: center;
-  cursor: pointer;
-  font-size: 12px;
-  transition: transform 0.1s, border-color 0.1s;
-}
-
-.prod-item:hover {
-  transform: trasnlateY(-2px);
-  border-color: #cbd5e0;
-  background-color: #edf2f7;
-}
-
-#lista-carrito {
-  flex: 1;
-  overflow-y: auto;
-  border-bottom: 1px dashed #cbd5e0;
-  margin-bottom: 16px;
-  padding-bottom: 10px;
-  font-size: 13px;
-}
-
-.btn-accion {
-  width: 100%;
-  padding: 12px;
-  background-color: #38a169;
-  color: #ffffff;
-  border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.btn-accion:hover {
-  background-color: #2f855a;
-}
-
-*  ESTILOS DEL MENU LATERAL */
-
-
-.capa {
-  position: fixed;
-  width: 100%;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.6);
-  z-index: 50;
-  top: 0;
-  left: 0;
-  display: none; 
-}
-
-/*Estilos para el encabezado*/
-.header {
-  width: 100%;
-  height: 100px;
-  position: fixed;
-  top: 0;
-  left: 0;
-  background: #1c1c1c; 
-  z-index: 100;
-}
-
-.container-header {
-  width: 100%;
-  padding: 0 20px; 
-  display: flex;
-  align-items: center;
-}
-
-.container-header .btn-menu,
-.logo {
-  float: left;
-  line-height: 100px;
-}
-
-.container-header .btn-menu label {
-  color: #fff;
-  font-size: 25px;
-  cursor: pointer;
-}
-
-.logo h1 {
-  color: #fff;
-  font-weight: 400;
-  font-size: 22px;
-  margin-left: 10px;
-}
-
-/*Menu lateral*/
-#btn-menu {
-  display: none;
-}
-
-.container-menu {
-  position: fixed; 
-  background: rgba(0, 0, 0, 0.5);
-  width: 100%;
-  height: 100vh;
-  top: 0;
-  left: 0;
-  transition: all 500ms ease;
-  opacity: 0;
-  visibility: hidden;
-  z-index: 101;
-}
-
-#btn-menu:checked ~ .container-menu {
-  opacity: 1;
-  visibility: visible;
-}
-
-.cont-menu {
-  width: 100%;
-  max-width: 250px;
-  background: #575656;
-  height: 100vh;
-  position: relative;
-  transition: all 500ms ease;
-  transform: translateX(-100%);
-}
-
-#btn-menu:checked ~ .container-menu .cont-menu {
-  transform: translateX(0%);
-}
-
-.cont-menu nav {
-  transform: translateY(15%);
-}
-
-.cont-menu nav a {
-  display: block;
-  text-decoration: none;
-  padding: 20px;
-  color: #c7c7c7;
-  border-left: 5px solid transparent;
-  transition: all 400ms ease;
-}
-
-.cont-menu nav a:hover {
-  border-left: 3px solid #c7c7c7;
-  background: #1f1f1f;
-}
-
-.cont-menu label {
-  position: absolute;
-  right: 5px;
-  top: 10px;
-  color: #fff;
-  cursor: pointer;
-  font-size: 18px;
-}
-
-.cont-menu label.btn-cerrar {
-  position: absolute;
-  right: 15px;
-  top: 15px;
-  color: #fff;
-  cursor: pointer;
-  font-size: 30px; 
-  line-height: 1;
-}
-
-.cont-menu nav a i {
-  width: 25px;
-  margin-right: 10px;
-  text-align: center;
-  font-size: 18px;
-}
 
 
 /* Estilos para el formulario desplegable */

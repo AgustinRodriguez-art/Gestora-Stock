@@ -3,10 +3,10 @@ const URL_API2 = "http://localhost/GestoraStock/BACKEND/api_clientes.php";
 const URL_API3 = "http://localhost/GestoraStock/BACKEND/api_pedidos.php";
 const URL_API4 = "http://localhost/GestoraStock/BACKEND/api_proveedores.php";
 
-// Apenas carga el DOM, arrancamos la fiesta: revisamos que pestana esta activa 
-// y escuchamos los clicks en las tablas para manejar editar/borrar de una
 document.addEventListener("DOMContentLoaded", () => {
+    // Al cargar la página, detecta y muestra el contenido de la pestaña inicial activa
     verificarYMostrarPestanaActiva();
+
     document.querySelector("#tablaClientes").addEventListener("click", manejarClientes);
     document.querySelector("#tablaProductos").addEventListener("click", manejarProductos);
     document.querySelector("#tablaProveedores").addEventListener("click", manejarProveedores);
@@ -28,10 +28,10 @@ async function cargarEntidad(url, selectorTbody, tipo) {
     }
 }
 
-// Aqui armamos las filas HTML segun el tipo de entidad que nos toque mostrar
+// Función unificada para pintar las filas en cualquier tabla según el tipo
 function renderizarTabla(datos, selectorTbody, tipo) {
     const cuerpo = document.querySelector(selectorTbody);
-    if (!cuerpo) return; // Si no estamos en esta pantalla, nos salimos tranquilos
+    if (!cuerpo) return; // Si no está en esta pantalla, no hace nada
     
     cuerpo.innerHTML = "";
     
@@ -94,7 +94,7 @@ function renderizarTabla(datos, selectorTbody, tipo) {
                 <td>${item.nombre_cliente}</td>
                 <td>${item.fecha}</td>
                 <td>$${item.total_pedido}</td>
-                <td>${listaProductosHTML}</td>
+                <td>${listaProductosHTML}</td> <!-- Aquí se inyecta la lista generada -->
                 <td>
                     <button class="btn-borrar">Borrar</button>
                 </td>
