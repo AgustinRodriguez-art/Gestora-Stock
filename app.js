@@ -310,7 +310,9 @@ async function editarProveedor(evento) {
 
 
 
-
-
-
+// BOTONES DE FORMULARIOS
+function toggleFormulario(idContenedor) {
+    const contenedor = document.getElementById(idContenedor);    
+    contenedor.classList.toggle("oculto");
+}
 

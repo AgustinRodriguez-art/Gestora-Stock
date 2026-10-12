@@ -104,3 +104,63 @@ table {
 
 
 
+/* Estilos para el formulario desplegable */
+.oculto {
+  display: none;
+}
+
+/* ESTILOS
+.btn-desplegar-form {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  font-size: 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-bottom: 15px;
+  font-weight: bold;
+  transition: background-color 0.2s ease;
+}
+
+
+.btn-desplegar-form:hover {
+  background-color: #218838;
+}
+
+
+.form-desplegable {
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  padding: 20px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.form-desplegable form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-desplegable input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.form-desplegable button[type="submit"] {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.form-desplegable button[type="submit"]:hover {
+  background-color: #0056b3;
+}*/
