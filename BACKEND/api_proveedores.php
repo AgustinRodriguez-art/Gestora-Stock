@@ -58,4 +58,78 @@ if ($metodo === "GET") {
     echo json_encode($proveedores, JSON_UNESCAPED_UNICODE);
     exit();
 }
+
+
+
+
+/* PUT - Editar proveedor */
+if ($metodo === "PUT") {
+    if (!isset($_GET["id"])) {
+        http_response_code(400);
+        echo json_encode(["error" => "Falta el id del proveedor"]);
+        exit();
+    }
+
+    $cuerpo = json_decode(file_get_contents("php://input"), true);
+
+    if (!isset($cuerpo["nombre"]) || !isset($cuerpo["contacto"]) || !isset($cuerpo["mail"])) {
+        http_response_code(400);
+        echo json_encode(["error" => "Faltan datos obligatorios del proveedor"]);
+        exit();
+    }
+
+    $consulta = $conexion->prepare(
+        "UPDATE proveedor
+         SET nombre = :nombre,
+             contacto = :contacto,
+             mail = :mail
+         WHERE id_proveedor = :id"
+    );
+
+    $consulta->execute([
+        ":nombre"   => $cuerpo["nombre"],
+        ":contacto" => $cuerpo["contacto"],
+        ":mail"     => $cuerpo["mail"],
+        ":id"       => $_GET["id"]
+    ]);
+
+    http_response_code(200);
+    echo json_encode([
+        "success"      => true,
+        "id_proveedor" => (int)$_GET["id"],
+        "nombre"       => $cuerpo["nombre"],
+        "contacto"     => $cuerpo["contacto"],
+        "mail"         => $cuerpo["mail"]
+    ], JSON_UNESCAPED_UNICODE);
+
+    exit();
+}
+
+/* DELETE - Borrar proveedor  */
+if ($metodo === "DELETE") {
+    if (!isset($_GET["id"])) {
+        http_response_code(400);
+        echo json_encode(["error" => "Falta el id del proveedor"]);
+        exit();
+    }
+
+    $consulta = $conexion->prepare(
+        "DELETE FROM proveedor
+         WHERE id_proveedor = :id"
+    );
+
+    $consulta->execute([
+        ":id" => $_GET["id"]
+    ]);
+
+    http_response_code(204);
+    exit();
+}
+
+
+
+
+
+
+
 ?>

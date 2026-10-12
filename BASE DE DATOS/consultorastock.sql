@@ -1,8 +1,5 @@
 -- Active: 1790625178723@@127.0.0.1@3306@consultorastock
-<<<<<<< HEAD
 DROP DATABASE IF EXISTS consultorastock;
-=======
->>>>>>> 077df21f64c4b6bf42c98866a56c606bd49bf29d
 CREATE DATABASE IF NOT EXISTS consultorastock CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 USE consultorastock;

@@ -62,4 +62,79 @@ if ($metodo === "GET") {
     echo json_encode($clientes, JSON_UNESCAPED_UNICODE);
     exit();
 }
+
+
+
+
+
+
+/* PUT - Editar cliente */
+if ($metodo === "PUT") {
+    if (!isset($_GET["id"])) {
+        http_response_code(400);
+        echo json_encode(["error" => "Falta el id del cliente"]);
+        exit();
+    }
+
+    $cuerpo = json_decode(file_get_contents("php://input"), true);
+
+    if (!isset($cuerpo["nombre_cliente"]) || !isset($cuerpo["direccion"]) || !isset($cuerpo["telefono"])) {
+        http_response_code(400);
+        echo json_encode(["error" => "Faltan datos obligatorios del cliente"]);
+        exit();
+    }
+
+    $consulta = $conexion->prepare(
+        "UPDATE clientes
+         SET nombre_cliente = :nombre_cliente,
+             direccion = :direccion,
+             telefono = :telefono
+         WHERE id_cliente = :id"
+    );
+
+    $consulta->execute([
+        ":nombre_cliente" => $cuerpo["nombre_cliente"],
+        ":direccion"      => $cuerpo["direccion"],
+        ":telefono"       => $cuerpo["telefono"],
+        ":id"             => $_GET["id"]
+    ]);
+
+    http_response_code(200);
+    echo json_encode([
+        "success"        => true,
+        "id_cliente"     => (int)$_GET["id"],
+        "nombre_cliente" => $cuerpo["nombre_cliente"],
+        "direccion"      => $cuerpo["direccion"],
+        "telefono"       => $cuerpo["telefono"]
+    ], JSON_UNESCAPED_UNICODE);
+
+    exit();
+}
+
+/* DELETE - Borrar cliente */
+if ($metodo === "DELETE") {
+    if (!isset($_GET["id"])) {
+        http_response_code(400);
+        echo json_encode(["error" => "Falta el id del cliente"]);
+        exit();
+    }
+
+    $consulta = $conexion->prepare(
+        "DELETE FROM clientes
+         WHERE id_cliente = :id"
+    );
+
+    $consulta->execute([
+        ":id" => $_GET["id"]
+    ]);
+
+    http_response_code(204);
+    exit();
+}
+
+
+
+
+
+
 ?>
