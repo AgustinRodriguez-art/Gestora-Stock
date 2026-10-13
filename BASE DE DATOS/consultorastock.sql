@@ -106,3 +106,6 @@ INSERT INTO Producto_pedido (id_pedido, id_producto, cantidad, precio_unitario) 
 (2, 3, 3, 2833.33),
 (3, 2, 2, 6000.00),
 (3, 4, 1, 12300.75);
+
+
+-- Tabla Proveedor-- Tabla Proveedor-- Tabla Proveedor-- Tabla Proveedor-- Tabla Proveedor
