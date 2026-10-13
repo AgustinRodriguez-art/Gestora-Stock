@@ -1,9 +1,19 @@
 <?php
 require "conexion.php";
 
-header("Access-Control-Allow-Origin: *");
+$origen = $_SERVER["HTTP_ORIGIN"] ?? "";
+$origenesPermitidos = [
+    "http://127.0.0.1:5500",
+    "http://localhost:5500"
+];
+
+if (in_array($origen, $origenesPermitidos, true)) {
+    header("Access-Control-Allow-Origin: $origen");
+    header("Vary: Origin");
+}
+
 header("Content-Type: application/json; charset=utf-8");
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 
 if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
@@ -34,7 +44,7 @@ if ($metodo === "POST") {
             $total_pedido += ($item["cantidad"] * $item["precio_unitario"]);
         }
 
-        // 1. Insertar cabecera del pedido
+        // Insertar cabecera del pedido
         $stmtPedido = $conexion->prepare("INSERT INTO pedido (id_cliente, total_pedido) VALUES (:id_cliente, :total_pedido)");
         $stmtPedido->execute([
             ":id_cliente"   => $id_cliente,
@@ -42,7 +52,7 @@ if ($metodo === "POST") {
         ]);
         $id_pedido = $conexion->lastInsertId();
 
-        // 2. Insertar detalle y actualizar stock
+        // Insertar detalle y actualizar stock
         foreach ($productos as $item) {
             $stmtDetalle = $conexion->prepare(
                 "INSERT INTO producto_pedido (id_pedido, id_producto, cantidad, precio_unitario) 
@@ -86,6 +96,21 @@ if ($metodo === "GET") {
          JOIN clientes c ON p.id_cliente = c.id_cliente"
     );
     $pedidos = $consulta->fetchAll(PDO::FETCH_ASSOC);
+
+    // Para cada pedido, buscamos sus productos en la tabla intermedia (producto_pedido + producto)
+    foreach ($pedidos as &$pedido) {
+        $stmtProd = $conexion->prepare(
+            "SELECT pp.cantidad, pp.precio_unitario, pr.nombre AS nombre_producto
+             FROM producto_pedido pp
+             JOIN producto pr ON pp.id_producto = pr.id_producto
+             WHERE pp.id_pedido = :id_pedido"
+        );
+        $stmtProd->execute([":id_pedido" => $pedido["id_pedido"]]);
+        // Guardamos los productos dentro de una nueva propiedad llamada "productos"
+        $pedido["productos"] = $stmtProd->fetchAll(PDO::FETCH_ASSOC);
+    }
+    unset($pedido);
+
     echo json_encode($pedidos, JSON_UNESCAPED_UNICODE);
     exit();
 }
