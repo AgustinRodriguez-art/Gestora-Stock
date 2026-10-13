@@ -333,6 +333,190 @@
 
     </div>
     </div>
+                        <tr><td colspan="4">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div> 
+
+    <!-- NUEVO PEDIDO -->
+    <div id="nuevo-pedido" class="pestaña">
+            <h2>Nuevo Pedido</h2>
+            <p>Formulario para registrar un nuevo pedido.</p>
+
+            <div class="pedido-contenedor">
+                <div class="pedido-izq">
+                    <div class="caja-formulario">
+                        <label>Seleccionar Cliente:</label>
+                        <select id="cliente">
+                            <option value="">-- Seleccionar... --</option>
+                        </select>
+                    </div>    
+                    
+                    
+                    <div class="caja-formulario">
+                        <label>Agregar productos:</label>
+                        <div id="catalogo-productos" class="grilla-productos"></div>
+                    </div>
+                </div>
+
+                <div class="pedido-der">
+                    <h3>Detalle del carrito</h3>
+                    <div id="lista-carrito">
+                        <p>El carrito esta vacio.</p>
+                    </div>
+                    <p><strong>Total pedido:</strong> <span id="total-pedido">$0.00</span></p>
+                    <button id="btn-guardar-pedido" class="btn-accion">Confirmar pedido</button>
+                </div>
+            </div>
+        </div> 
+
+        
+
+    <!-- INVENTARIO -->
+    <div id="inventario" class="pestaña">
+        <h2>Inventario</h2>
+        <p>Listado y control de la tabla `producto`.</p>
+        
+        <!-- Boton para desplegar el formulario -->
+        <button class="btn-desplegar-form" onclick="toggleFormulario('formProducto-container')">Agregar Producto</button>
+
+        <div id="formProducto-container" class="form-desplegable oculto">
+            <form id="formProducto">
+                <input type="text" id="campoNombre" placeholder="Nombre" required>
+                <input type="number" id="campoPrecioCompra" placeholder="Precio de compra" required>
+                <input type="number" id="campoPrecioVenta" placeholder="Precio de venta" required>
+                <input type="text" id="campoCategoria" placeholder="Categoría" required>
+                <input type="number" id="campoStock" placeholder="Stock" required>
+                <input type="number" id="campoIdProveedor" placeholder="Id de proveedor" required>
+                <button type="submit">Agregar Producto</button>
+            </form>
+        </div>
+        <hr>
+        <table>
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Nombre</th>
+                    <th>Precio de compra</th>
+                    <th>Precio de venta</th>
+                    <th>Categoría</th>
+                    <th>Stock</th>
+                    <th>Id de proveedor</th>
+                </tr>
+            </thead>
+
+            <tbody id="tablaProductos" class="tabla"> </tbody>
+
+        </table>
+
+    </div>
+    
+
+
+
+
+    <!-- HISTORIAL DE PEDIDOS -->
+    <div id="historial-pedidos" class="pestaña">
+        <h2>Historial de Pedidos</h2>
+        <p>Listado de las tablas `pedido` y `producto_pedido`.</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Cliente</th>
+                    <th>Fecha</th>
+                    <th>Total Pedido</th>
+                    <th>Productos</th>
+                </tr>
+            </thead>
+
+            <tbody id="tablaPedidos" class="tabla"> </tbody>
+
+        </table>
+    </div>
+
+
+
+
+    <!-- CLIENTES -->
+    <div id="clientes" class="pestaña">
+        <h2>Clientes</h2>
+        <p>Gestión de la tabla `clientes`.</p>
+
+        <!-- Boton para desplegar el formulario -->
+        <button class="btn-desplegar-form" onclick="toggleFormulario('formClientes-container')">Agregar Cliente</button>
+
+        <div id="formClientes-container" class="form-desplegable oculto">
+            <form id="formClientes">
+                <input type="text" id="campoNombreCliente" placeholder="Nombre" required>
+                <input type="text" id="campoDireccion" placeholder="Dirección" required>
+                <input type="tel" id="campoTelefono" placeholder="Teléfono" required>
+                <button type="submit">Agregar Cliente</button>
+            </form>
+        </div>
+        <hr>
+        <table>
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Nombre</th>
+                    <th>Dirección</th>
+                    <th>Teléfono</th>
+                </tr>
+            </thead>
+
+            <tbody id="tablaClientes" class="tabla"> </tbody>
+
+        </table>
+
+
+
+
+    </div>
+
+
+
+
+
+    <!-- PROVEEDORES -->    
+    <div id="proveedores" class="pestaña">
+        <h2>Proveedores</h2>
+        <p>Gestión de la tabla `proveedor`.</p>
+
+        <!-- Boton para desplegar el formulario -->
+        <button class="btn-desplegar-form" onclick="toggleFormulario('formProveedores-container')">Agregar Proveedor</button>
+
+        <div id="formProveedores-container" class="form-desplegable oculto">
+            <form id="formProveedores">
+                <input type="text" id="campoNombreProveedor" placeholder="Nombre" required>
+                <input type="text" id="campoContacto" placeholder="Contacto" required>
+                <input type="email" id="campoMail" placeholder="Correo electrónico" required>
+                <button type="submit">Agregar Proveedor</button>
+            </form>
+        </div>
+        <hr>
+        <table>
+            <thead>
+                <tr>
+                    <th>id_proveedor</th>
+                    <th>nombre_proveedor</th>
+                    <th>contacto</th>
+                    <th>mail</th>
+                </tr>
+            </thead>
+
+            <tbody id="tablaProveedores" class="tabla"> </tbody>
+
+        </table>
+    </div>
+
+
+
+
+    <!-- Vinculacion con JavaScript -->
+
     <script src="app.js"></script>
 </body>
 </html>

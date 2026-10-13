@@ -71,7 +71,6 @@ CREATE TABLE IF NOT EXISTS Producto_pedido (
 
 
 
-
 -- INSERCION DE DATOS DE PRUEBA --
 
 INSERT INTO proveedor (nombre, contacto, mail) VALUES
