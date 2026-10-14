@@ -128,7 +128,6 @@ body {
   margin-left: 68px;
   padding: 24px;
   transition: margin-left 300ms ease;
-  transition: margin-left 300ms ease;
 }
 
 #btn-menu:checked ~ .contenido-principal {
@@ -509,3 +508,106 @@ body:not(.autenticado) #pantalla-login {
 #mensaje-login { min-height: 20px; margin: 4px 0 0; color: #b42318; font-size: 14px; }
 #btn-cerrar-sesion { display: flex; align-items: center; gap: 12px; width: 100%; margin-top: 20px; background: #343958; text-align: left; }
 #btn-cerrar-sesion:hover { background: #4d75e4; }
+
+/* Indicador de carga al cambiar de sección */
+.loader-pantalla {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.8);
+  z-index: 1000;
+}
+
+.loader-pantalla.visible {
+  display: flex;
+}
+
+#loader-pantalla > svg {
+  width: 3.25em;
+  transform-origin: center;
+  animation: rotate4 2s linear infinite;
+}
+
+#loader-pantalla > svg circle {
+  fill: none;
+  stroke: hsl(214, 97%, 59%);
+  stroke-width: 2;
+  stroke-dasharray: 1, 200;
+  stroke-dashoffset: 0;
+  stroke-linecap: round;
+  animation: dash4 1.5s ease-in-out infinite;
+}
+
+@keyframes rotate4 {
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes dash4 {
+  0% { stroke-dasharray: 1, 200; stroke-dashoffset: 0; }
+  50% { stroke-dasharray: 90, 200; stroke-dashoffset: -35px; }
+  100% { stroke-dashoffset: -125px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #loader-pantalla > svg,
+  #loader-pantalla > svg circle { animation-duration: 3s; }
+}
+
+.cont-menu {
+  display: flex;
+  flex-direction: column;
+}
+
+#boton-salir {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 48px;
+  margin-top: auto;
+  padding: 10px 8px;
+  border: 0;
+  border-left: 5px solid transparent;
+  border-radius: 5px;
+  background: transparent;
+  color: #e4b8c1;
+  font: inherit;
+  cursor: pionter;
+  white-space: nowrap;
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+#boton-salir i {
+  width: 34px;
+  flex: 0 0 34px;
+  text-align: center;
+  font-size: 18px;
+}
+
+#boton-salir span {
+  max-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  transition: max-width 300ms ease, opacity 180ms ease;
+}
+
+#btn-menu:checked ~ .container-menu #boton-salir {
+  justify-content: flex-start;
+}
+
+#btn-menu:checked ~ .container-menu #boton-salir span {
+  max-width: 190px;
+  opacity: 1;
+  visibility: visible;
+}
+
+#boton-salir:hover,
+#boton-salir:focus-visible {
+  background: #693d52;
+  color: #fff;
+  outline: none;
+}

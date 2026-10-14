@@ -104,6 +104,12 @@ function mostrarAplicacion() {
     document.querySelector("#tablaProveedores").addEventListener("click", manejarProveedores);
     document.querySelector("#tablaPedidos").addEventListener("click", manejarPedidos);
 
+    const botonSalir = document.querySelector("#boton-salir");
+
+    if (botonSalir) {
+        botonSalir.addEventListener("click", cerrarSesion);
+    }
+
     document.querySelector("#formClientes").addEventListener("submit", crearCliente);
     document.querySelector("#formProducto").addEventListener("submit", crearProducto);
     document.querySelector("#formProveedores").addEventListener("submit", crearProveedor);
@@ -262,28 +268,24 @@ function renderizarTabla(datos, selectorTbody, tipo) {
 let carritoPedido = [];
 
 // Función que detecta qué pestaña está abierta actualmente
-function verificarYMostrarPestanaActiva() {
+async function verificarYMostrarPestanaActiva() {
     const panelActivo = document.querySelector('.pestaña.active-content');
-    
-    if (panelActivo) {
-        const idTab = panelActivo.id;        
-        
-        if (idTab === 'panel-principal') {
-            cargarUltimasOperacionesPanel();
-            cargarResumenDashboard();
-        } else if (idTab === 'inventario') {
-            cargarEntidad(URL_API, '#tablaProductos', 'productos');
-        } else if (idTab === 'clientes') {
-            cargarEntidad(URL_API2, '#tablaClientes', 'clientes');
-        } else if (idTab === 'proveedores') {
-            cargarEntidad(URL_API4, '#tablaProveedores', 'proveedores');
-        } else if (idTab === 'historial-pedidos') {
-            cargarEntidad(URL_API3, '#tablaPedidos', 'pedidos');
-        } else if (idTab === 'nuevo-pedido') {
-            cargarClientesEnSelect();
-            cargarProductosCatalogoPedido();
-            inicializarBotonGuardarPedido();
-        }
+    if (!panelActivo) return;
+
+    const idTab = panelActivo.id;
+    if (idTab === 'panel-principal') {
+        await Promise.all([cargarUltimasOperacionesPanel(), cargarResumenDashboard()]);
+    } else if (idTab === 'inventario') {
+        await cargarEntidad(URL_API, '#tablaProductos', 'productos');
+    } else if (idTab === 'clientes') {
+        await cargarEntidad(URL_API2, '#tablaClientes', 'clientes');
+    } else if (idTab === 'proveedores') {
+        await cargarEntidad(URL_API4, '#tablaProveedores', 'proveedores');
+    } else if (idTab === 'historial-pedidos') {
+        await cargarEntidad(URL_API3, '#tablaPedidos', 'pedidos');
+    } else if (idTab === 'nuevo-pedido') {
+        await Promise.all([cargarClientesEnSelect(), cargarProductosCatalogoPedido()]);
+        inicializarBotonGuardarPedido();
     }
 }
 
@@ -523,30 +525,33 @@ function inicializarBotonGuardarPedido() {
 
 
 
-function cambiarPestana(event, idTabSeleccionada) {
+async function cambiarPestana(event, idTabSeleccionada) {
     if (event) event.preventDefault();
+
+    const loader = document.querySelector('#loader-pantalla');
+    if (loader) {
+        loader.classList.add('visible');
+        loader.setAttribute('aria-hidden', 'false');
+    }
 
     const checkMenu = document.querySelector('#btn-menu');
     if (checkMenu) checkMenu.checked = false;
 
-    document.querySelectorAll('.pestaña-btn').forEach(boton => {
-        boton.classList.remove('active');
-    });
-    if (event && event.currentTarget) {
-        event.currentTarget.classList.add('active');
-    }
+    document.querySelectorAll('.pestaña-btn').forEach(boton => boton.classList.remove('active'));
+    if (event && event.currentTarget) event.currentTarget.classList.add('active');
 
-    const paneles = document.querySelectorAll('.pestaña');
-    paneles.forEach(panel => {
-        panel.classList.remove('active-content');
-    });
-
+    document.querySelectorAll('.pestaña').forEach(panel => panel.classList.remove('active-content'));
     const panelSeleccionado = document.getElementById(idTabSeleccionada);
-    if (panelSeleccionado) {
-        panelSeleccionado.classList.add('active-content');
-    }
+    if (panelSeleccionado) panelSeleccionado.classList.add('active-content');
 
-    verificarYMostrarPestanaActiva();
+    try {
+        await verificarYMostrarPestanaActiva();
+    } finally {
+        if (loader) {
+            loader.classList.remove('visible');
+            loader.setAttribute('aria-hidden', 'true');
+        }
+    }
 }
 
 
@@ -945,6 +950,8 @@ function filtrarPedidos() {
 
     renderizarTabla(lista, "#tablaPedidos", "pedidos");
 }
+
+
 
 
 

@@ -80,9 +80,18 @@
                         <i class="fa-solid fa-truck"></i><span>PROVEEDORES</span>
                     </a>
                 </nav>
-                <button id="boton-salir" type="button"><i class="fa-solid fa-right-from-bracket"></i><span>Cerrar sesión</span></button>
+                <button id="boton-salir" type="button" aria-label="Cerrar sesion" title="Cerrar sesion">
+                    <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+                    <span>Cerrar sesion</span>
+                </button>
             </div>
         </aside>
+
+        <div id="loader-pantalla" class="loader-pantalla" aria-hidden="true">
+            <svg viewBox="25 25 50 50" aria-label="Cargando">
+                <circle r="20" cy="50" cx="50"></circle>
+            </svg>
+        </div>
 
 <main class="contenido-principal">
 
@@ -129,58 +138,6 @@
                     </table>
                 </div>
             </div>
-<!-- FORMULARIO LOGIN -->
-    <section id="pantalla-login" class="pantalla-login">
-        <div class="login-card">
-
-            <div id="panel-registro">
-                <h1>Crear cuenta</h1>
-                <p>Registrate para usar Gestora de Stock</p>
-
-                <form id="form-registro">
-                    <label for="registro-email">Email</label>
-                    <input id="registro-email" type="email" required autocomplete="email">
-
-                    <label for="registro-password">Contraseña</label>
-                    <input id="registro-password" type="password" required minlength="12" autocomplete="new-password">
-
-                    <label for="registro-confirmar">Repetí la contraseña</label>
-                    <input id="registro-confirmar" type="password" required minlength="12" autocomplete="new-password">
-
-                    <button type="submit">Crear cuenta</button>
-                </form>
-
-                <p id="registro-mensaje" role="status" aria-live="polite"></p>
-                <p>
-                    ¿Ya tenés cuenta?
-                    <button id="mostrar-login" class="auth-link" type="button">Ya tengo cuenta</button>
-                </p>
-            </div>
-
-            <div id="panel-login" hidden>
-                <h1>Iniciar sesión</h1>
-                <p>Ingresá con tu cuenta</p>
-
-                <form id="form-login">
-                    <label for="login-email">Email</label>
-                    <input id="login-email" type="email" required autocomplete="email">
-
-                    <label for="login-password">Contraseña</label>
-                    <input id="login-password" type="password" required autocomplete="current-password">
-
-                    <button type="submit">Ingresar</button>
-                </form>
-
-                <p id="login-mensaje" role="status" aria-live="polite"></p>
-                <p>
-                    ¿Todavía no tenés cuenta?
-                    <button id="mostrar-registro" class="auth-link" type="button">Crear cuenta</button>
-                </p>
-            </div>
-
-        </div>
-    </section>
-
 <!-- NUEVO PEDIDO -->
             <div id="nuevo-pedido" class="pestaña">
                 <h2>Nuevo Pedido</h2>
@@ -385,4 +342,5 @@
         <script type="module" src="firebase-auth.js"></script>
     </body>
 </html>
+
 
