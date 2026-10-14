@@ -38,6 +38,31 @@ if ($metodo === "POST") {
         exit();
     }
 
+    $nombre = trim((string)$cuerpo["nombre"]);
+    $categoria = trim((string)$cuerpo["categoria"]);
+    $precioCompra = $cuerpo["precio_compra"] ?? 0;
+    $precioVenta = $cuerpo["precio_venta"];
+    $stock = $cuerpo["stock"];
+
+    if (
+        $nombre === "" ||
+        mb_strlen($nombre) > 150 ||
+        $categoria === "" ||
+        mb_strlen($categoria) > 100 ||
+        !is_numeric($precioCompra) ||
+        !is_numeric($precioVenta) ||
+        (float)$precioCompra < 0 ||
+        (float)$precioVenta < 0 ||
+        (float)$precioCompra > 99999999.99 ||
+        (float)$precioVenta > 99999999.99 ||
+        filter_var($stock, FILTER_VALIDATE_INT) === false ||
+        (int)$stock < 0
+    ) {
+        http_response_code(422);
+        echo json_encode(["error" => "Revisa el nombre, la categoria, los precios y el stock"]);
+        exit();
+    }
+ 
     // Preparamos la consulta SQL para insertar de forma segura
     $consulta = $conexion->prepare(
         "INSERT INTO producto (nombre, precio_compra, precio_venta, categoria, stock) 
@@ -96,10 +121,12 @@ if ($metodo === "PUT") {
          WHERE id_producto = :id"
     );
 
-    $consulta->execute([
-        ":precio_venta" => $cuerpo["precio_venta"],
-        ":stock"        => $cuerpo["stock"],
-        ":id"           => $_GET["id"]
+     $consulta->execute([
+        ":nombre"        => $nombre,
+        ":precio_compra" => $precioCompra,
+        ":precio_venta"  => $precioVenta,
+        ":categoria"     => $categoria,
+        ":stock"         => $stock
     ]);
 
     http_response_code(200);
@@ -115,25 +142,29 @@ if ($metodo === "PUT") {
 
 /* DELETE - Borrar producto */
 if ($metodo === "DELETE") {
-    if (!isset($_GET["id"])) {
-        http_response_code(400);
-        echo json_encode(["error" => "Falta el id del producto"]);
+    $id = filter_input(INPUT_GET, "id", FILTER_VALIDATE_INT);
+
+    if ($id === false || $id === null || $id < 1) {
+        http_response_code(422);
+        echo json_encode(["error" => "El id del producto debe ser un número válido"]);
         exit();
     }
 
     $consulta = $conexion->prepare(
-        "DELETE FROM producto
-         WHERE id_producto = :id"
+        "DELETE FROM producto WHERE id_producto = :id"
     );
 
-    $consulta->execute([
-        ":id" => $_GET["id"]
-    ]);
+    $consulta->execute([":id" => $id]);
+
+    if ($consulta->rowCount() === 0) {
+        http_response_code(404);
+        echo json_encode(["error" => "No se encontró el producto"]);
+        exit();
+    }
 
     http_response_code(204);
     exit();
 }
-
 
 
 
