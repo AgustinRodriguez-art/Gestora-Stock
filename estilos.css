@@ -712,3 +712,109 @@ body:not(.autenticado) #pantalla-login {
   outline: none;
 }
 
+tbody tr {
+  transition: background-color 180ms ease;
+
+}
+
+tbody tr:hover {
+  background-color: #eef2ff;
+}
+
+.bloque-tabla,
+.pedido-der,
+.caja-formulario,
+.busquedaDesplegable,
+.form-desplegable {
+  border: 1px solid #e2e8f0;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #4d75e4;
+  box-shadow: 0 0 0 3px rgba(77, 117, 228, 0.16);
+}
+
+button:not(:disabled) {
+  transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+
+}
+
+button:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 9px rgba(31, 35, 65, 0.15);
+}
+
+button:not(:disabled):active {
+  transform: translateY(0);
+}
+
+form button[type="submit"]:hover:not(:disabled) {
+  background-color: #3b5fcc;
+}
+
+.btn-editar,
+.btn-borrar {
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  padding:6px 10px;
+  font-weight: 600;
+  cursor: pointer;
+  margin: 2px;
+}
+
+.btn-editar {
+  background-color: #4d75e4;
+}
+
+.btn-editar:hover:not(:disabled) {
+  background-color: #3b5fcc;
+}
+
+.btn-borrar{
+  background-color: #dc3545 ;
+}
+
+.btn-borrar:hover:not(:disabled) {
+  background-color: #c82333;
+}
+
+.btn-desplegar-busq {
+  border-color: #4d75e4;
+  color: #4d75e4
+}
+
+.btn-desplegar-busq:hover:not(:disabled) {
+  background-color: #edf2f7;
+
+}
+
+.btn-desplegar-form {
+  background-color: #4d75e4;
+  border-color: #4d75e4;
+  color: #fff;
+}
+
+.btn-desplegar-form:hover:not(:disabled) {
+  background-color: #3b5fcc;
+  border-color: #3b5fcc;
+}
+
+.pedido-der h3 i{
+  margin-right: 8px;
+  color: #4d75e4;
+
+}
+
+#lista-carrito > p {
+  margin-left: 35px;
+}
+
+#mostrar-login,
+#mostrar-registro {
+  display: block;
+  margin: 12px auto 0;
+  background-color: #007bff;
+}
