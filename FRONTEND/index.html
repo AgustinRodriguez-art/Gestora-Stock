@@ -9,11 +9,11 @@
     </head>
 
     <body>
-
+        
         <input type="checkbox" id="btn-menu" />
         <aside class="container-menu">
             <div class="cont-menu">
-
+                
                 <label for="btn-menu" class="btn-menu" aria-label="Expandir o contraer el menu" title="Expandir o contraer menu">
                     <i class="fa-solid fa-bars"></i>
                 </label>
@@ -37,12 +37,17 @@
                     <a href="#" class="pestaña-btn" data-seccion="proveedores" title="Proveedores" aria-label="Proveedores" onclick="cambiarPestana(event, 'proveedores')">
                         <i class="fa-solid fa-truck"></i><span>PROVEEDORES</span>
                     </a>
-                </nav>
+</nav>
             </div>
         </aside>
 
-<main class="contenido-principal">
+        <div id="loader-pantalla" class="loader-pantalla" aria-hidden="true">
+            <svg viewBox="25 25 50 50">
+                <circle r="20" cy="50" cx="50"></circle>
+            </svg>
+        </div>
 
+<main class="contenido-principal">
             <!-- PANEL PRINCIPAL -->
             <div id="panel-principal" class="pestaña active-content">
                 <p class="panel-general-texto">RESUMEN GENERAL DEL SISTEMA</p>
@@ -283,3 +288,4 @@
         <script src="app.js"></script>
     </body>
 </html>
+

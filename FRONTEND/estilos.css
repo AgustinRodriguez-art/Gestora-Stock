@@ -36,7 +36,7 @@ body {
 }
 
 #btn-menu:checked ~ .container-menu {
-  width: 250px;
+  width: 270px;
 }
 
 .cont-menu {
@@ -127,12 +127,6 @@ body {
   min-height: 100vh;
   margin-left: 68px;
   padding: 24px;
-  transition: margin-left 300ms ease;
-  transition: margin-left 300ms ease;
-}
-
-#btn-menu:checked ~ .contenido-principal {
-  margin-left: 250px;
 }
 
 /* ==========================================================
@@ -306,7 +300,7 @@ body {
     margin-bottom: 10px;
 }
 
-.tabla-carrito th,
+.tabla-carrito th, 
 .tabla-carrito td {
     padding: 8px 10px;
     font-size: 12px;
@@ -416,7 +410,6 @@ form button[type="submit"] {
     cursor: pointer;
 }
 
-/* Ajustes que ya estaban en el proyecto */
 .contenido-principal {
   background-color: #f4f4f4;
 }
@@ -490,3 +483,60 @@ form button[type="submit"] {
   margin: 0 0 20px;
   text-align: center;
 }
+
+/* SECCION DE AANIMACIONES */
+
+.loader-pantalla{
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.8);
+  z-index: 1000;
+}
+
+.loader-pantalla.visible{
+  display: flex;
+}
+
+#loader-pantalla > svg {
+ width: 3.25em;
+ transform-origin: center;
+ animation: rotate4 2s linear infinite;
+}
+
+#loader-pantalla > svg circle {
+ fill: none;
+ stroke: hsl(214, 97%, 59%);
+ stroke-width: 2;
+ stroke-dasharray: 1, 200;
+ stroke-dashoffset: 0;
+ stroke-linecap: round;
+ animation: dash4 1.5s ease-in-out infinite;
+}
+
+
+
+@keyframes rotate4 {
+ 100% {
+  transform: rotate(360deg);
+ }
+}
+
+@keyframes dash4 {
+ 0% {
+  stroke-dasharray: 1, 200;
+  stroke-dashoffset: 0;
+ }
+
+ 50% {
+  stroke-dasharray: 90, 200;
+  stroke-dashoffset: -35px;
+ }
+
+ 100% {
+  stroke-dashoffset: -125px;
+ }
+}
+

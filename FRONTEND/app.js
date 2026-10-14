@@ -1,8 +1,8 @@
-const URL_API = "./BACKEND/api_productos.php";
-const URL_API2 = "./BACKEND/api_clientes.php";
-const URL_API3 = "./BACKEND/api_pedidos.php";
-const URL_API4 = "./BACKEND/api_proveedores.php";
-const URL_API5 = "./BACKEND/api_dashboard.php";
+const URL_API = "../BACKEND/api_productos.php";
+const URL_API2 = "../BACKEND/api_clientes.php";
+const URL_API3 = "../BACKEND/api_pedidos.php";
+const URL_API4 = "../BACKEND/api_proveedores.php";
+const URL_API5 = "../BACKEND/api_dashboard.php";
 
 // Objeto de estado global para guardar copias de los datos originales
 const estadoApp = {
@@ -13,7 +13,9 @@ const estadoApp = {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
+        
     // Al cargar la página, detecta y muestra la pestaña activa
+
     verificarYMostrarPestanaActiva();
 
     document.querySelector("#tablaClientes").addEventListener("click", manejarClientes);
@@ -57,7 +59,7 @@ async function cargarEntidad(url, selectorTbody, tipo) {
     try {
         const respuesta = await fetch(url);
         const datos = await respuesta.json();
-
+        
         // Guardamos en el estado según el tipo
         if (tipo === "productos") {
             estadoApp.productos = datos;
@@ -81,15 +83,15 @@ async function cargarEntidad(url, selectorTbody, tipo) {
 function renderizarTabla(datos, selectorTbody, tipo) {
     const cuerpo = document.querySelector(selectorTbody);
     if (!cuerpo) return;
-
+    
     cuerpo.innerHTML = "";
-
+    
     datos.forEach(item => {
         const fila = document.createElement("tr");
         fila.dataset.id = tipo === "pedidos"
     ? item.id_pedido
     : item.id || item.id_producto || item.id_cliente || item.id_proveedor;
-
+        
         if (tipo === "productos") {
             fila.innerHTML = `
                 <td>${item.id_producto}</td>
@@ -131,7 +133,7 @@ function renderizarTabla(datos, selectorTbody, tipo) {
             if (item.productos && item.productos.length > 0) {
                 listaProductosHTML = "<ul>";
                 item.productos.forEach(prod => {
-                    listaProductosHTML += `<li>${prod.nombre_producto} (Cant: ${prod.cantidad})</li>`;
+                    listaProductosHTML += `<li>${prod.nombre_producto} (Cant: ${prod.cantidad})</li>`; 
                 });
                 listaProductosHTML += "</ul>";
             } else {
@@ -179,28 +181,33 @@ function renderizarTabla(datos, selectorTbody, tipo) {
 let carritoPedido = [];
 
 // Función que detecta qué pestaña está abierta actualmente
-function verificarYMostrarPestanaActiva() {
+async function verificarYMostrarPestanaActiva() {
     const panelActivo = document.querySelector('.pestaña.active-content');
 
-    if (panelActivo) {
-        const idTab = panelActivo.id;
+    if (!panelActivo) return;
 
-        if (idTab === 'panel-principal') {
-            cargarUltimasOperacionesPanel();
-            cargarResumenDashboard();
-        } else if (idTab === 'inventario') {
-            cargarEntidad(URL_API, '#tablaProductos', 'productos');
-        } else if (idTab === 'clientes') {
-            cargarEntidad(URL_API2, '#tablaClientes', 'clientes');
-        } else if (idTab === 'proveedores') {
-            cargarEntidad(URL_API4, '#tablaProveedores', 'proveedores');
-        } else if (idTab === 'historial-pedidos') {
-            cargarEntidad(URL_API3, '#tablaPedidos', 'pedidos');
-        } else if (idTab === 'nuevo-pedido') {
-            cargarClientesEnSelect();
-            cargarProductosCatalogoPedido();
-            inicializarBotonGuardarPedido();
-        }
+    const idTab = panelActivo.id;
+
+    if (idTab === 'panel-principal') {
+        await Promise.all([
+            cargarUltimasOperacionesPanel(),
+            cargarResumenDashboard()
+        ]);
+    } else if (idTab === 'inventario') {
+        await cargarEntidad(URL_API, '#tablaProductos', 'productos');
+    } else if (idTab === 'clientes') {
+        await cargarEntidad(URL_API2, '#tablaClientes', 'clientes');
+    } else if (idTab === 'proveedores') {
+        await cargarEntidad(URL_API4, '#tablaProveedores', 'proveedores');
+    } else if (idTab === 'historial-pedidos') {
+        await cargarEntidad(URL_API3, '#tablaPedidos', 'pedidos');
+    } else if (idTab === 'nuevo-pedido') {
+        await Promise.all([
+            cargarClientesEnSelect(),
+            cargarProductosCatalogoPedido()
+        ]);
+
+        inicializarBotonGuardarPedido();
     }
 }
 
@@ -209,7 +216,7 @@ async function cargarUltimasOperacionesPanel() {
     try {
         const respuesta = await fetch(URL_API3);
         const pedidos = await respuesta.json();
-
+        
         // Ordenar de más nuevo a más viejo (descendente por ID de pedido)
         pedidos.sort((a, b) => b.id_pedido - a.id_pedido);
 
@@ -227,7 +234,7 @@ async function cargarResumenDashboard(){
 
         if (!respuesta.ok || datos.error){
             throw new Error(datos.error || "No se pudo cargar el resumen");
-
+       
         }
 
         document.querySelector("#total-ventas").textContent =
@@ -247,8 +254,8 @@ async function cargarResumenDashboard(){
 
     } catch (error) {
         console.error("Error al cargar el resumen:", error);
-
-
+         
+         
     }
 }
 
@@ -285,7 +292,7 @@ async function cargarProductosCatalogoPedido() {
         productos.forEach(prod => {
             const div = document.createElement("div");
             div.className = "prod-item";
-
+            
             // Si el stock es 0, se deshabilita visualmente y no permite seleccionar
             if (prod.stock <= 0) {
                 div.style.opacity = "0.5";
@@ -421,12 +428,12 @@ function inicializarBotonGuardarPedido() {
 
             if (respuesta.ok) {
                 alert("¡Se genero el pedido!");
-
+                
                 // Limpiar carrito y formulario
                 carritoPedido = [];
                 renderizarCarrito();
                 document.querySelector("#cliente").value = "";
-                cargarProductosCatalogoPedido();
+                cargarProductosCatalogoPedido(); 
             } else {
                 const errorData = await respuesta.json();
                 alert("Error al crear el pedido: " + (errorData.error || "Desconocido"));
@@ -440,8 +447,15 @@ function inicializarBotonGuardarPedido() {
 
 
 
-function cambiarPestana(event, idTabSeleccionada) {
+async function cambiarPestana(event, idTabSeleccionada) {
     if (event) event.preventDefault();
+
+    const loader = document.querySelector('#loader-pantalla');
+
+    if (loader) {
+        loader.classList.add('visible');
+        loader.setAttribute('aria-hidden', 'false');
+    }
 
     const checkMenu = document.querySelector('#btn-menu');
     if (checkMenu) checkMenu.checked = false;
@@ -463,7 +477,17 @@ function cambiarPestana(event, idTabSeleccionada) {
         panelSeleccionado.classList.add('active-content');
     }
 
-    verificarYMostrarPestanaActiva();
+    try {
+        await Promise.all([
+            verificarYMostrarPestanaActiva(),
+            new Promise(resolve => setTimeout(resolve, 1000))
+        ]);
+    } finally {
+        if (loader) {
+            loader.classList.remove('visible');
+            loader.setAttribute('aria-hidden', 'true');
+        }
+    }
 }
 
 
@@ -509,9 +533,9 @@ async function borrarRegistro(evento, urlApi) {
            alert(error.error || "No se pudo borrar el pedido");
            console.error("Respuesta del servidor:", error);
            return;
-        }
+        }  
 
-
+        
          fila.remove(); // Borra la fila visualmente de la tabla
         }
         catch (error) {
@@ -582,9 +606,9 @@ async function editarProducto(evento) {
         const respuesta = await fetch(`${URL_API}?id=${id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
+            body: JSON.stringify({ 
                 precio_venta: parseFloat(nuevoPrecio),
-                stock: parseInt(nuevoStock)
+                stock: parseInt(nuevoStock) 
             })
         });
 
@@ -637,14 +661,14 @@ async function editarProveedor(evento) {
 
 // Crear instancias
 function toggleFormulario(idContenedor) {
-    const contenedor = document.getElementById(idContenedor);
+    const contenedor = document.getElementById(idContenedor);    
     if (contenedor) contenedor.classList.toggle("oculto");
 }
 
 
 async function crearCliente(evento) {
     evento.preventDefault();
-
+    
     const nuevoCliente = {
         nombre_cliente: document.querySelector("#campoNombreCliente").value,
         direccion: document.querySelector("#campoDireccion").value,
@@ -728,7 +752,7 @@ async function crearProveedor(evento) {
 // Busquedas
 
 function toggleBusqueda(idContenedor) {
-    const contenedor = document.getElementById(idContenedor);
+    const contenedor = document.getElementById(idContenedor);    
     if (contenedor) contenedor.classList.toggle("oculto");
 }
 
@@ -862,3 +886,7 @@ function filtrarPedidos() {
 
     renderizarTabla(lista, "#tablaPedidos", "pedidos");
 }
+
+
+
+
