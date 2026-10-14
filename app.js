@@ -79,6 +79,17 @@ async function iniciarSesion(evento) {
 }
 
 
+async function cerrarSesion() {
+    try {
+        await fetchConToken("./BACKEND/api_logout.php", {
+            method: "POST",
+            credentials: "same-origin"
+        });
+    } finally {
+        document.body.classList.remove("autenticado");
+        window.location.reload();
+    }
+}
 let aplicacionIniciada = false;
 function mostrarAplicacion() {
     document.body.classList.add("autenticado");
@@ -92,6 +103,9 @@ function mostrarAplicacion() {
     document.querySelector("#tablaProductos").addEventListener("click", manejarProductos);
     document.querySelector("#tablaProveedores").addEventListener("click", manejarProveedores);
     document.querySelector("#tablaPedidos").addEventListener("click", manejarPedidos);
+
+    const botonSalir = document.querySelector("#boton-salir");
+    if (botonSalir) botonSalir.addEventListener("click", cerrarSesion);
 
 
     document.querySelector("#formClientes").addEventListener("submit", crearCliente);
