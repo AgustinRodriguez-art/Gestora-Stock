@@ -21,6 +21,9 @@ if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
     exit();
 }
 
+require_once __DIR__ . "/firebase_auth.php";
+$usuarioFirebase = exigirUsuarioFirebase();
+
 $metodo = $_SERVER["REQUEST_METHOD"];
 
 // Si es POST, registramos un nuevo proveedor
@@ -125,11 +128,4 @@ if ($metodo === "DELETE") {
     http_response_code(204);
     exit();
 }
-
-
-
-
-
-
-
 ?>

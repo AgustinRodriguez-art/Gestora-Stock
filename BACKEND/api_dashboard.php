@@ -11,9 +11,27 @@ if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
     exit();
 }
 
+require_once __DIR__ . "/firebase_auth.php";
+$usuarioFirebase = exigirUsuarioFirebase();
+
 //  Procesa peticiones de lectura mediante GET
 if ($_SERVER["REQUEST_METHOD"] === "GET") {
     try {
+
+        $resumenStock = $conexion->query(
+            "SELECT COALESCE(SUM(stock), 0) AS total_unidades,
+                    COALESCE(SUM(CASE WHEN stock > 0 THEN 1 ELSE 0 END), 0) AS productos_disponibles FROM producto"
+        )->fetch(PDO::FETCH_ASSOC);
+
+        $totalClientes = (int)$conexion
+          ->query("SELECT COUNT(*) FROM clientes")
+          ->fetchColumn();
+
+        $totalProveedores = (int)$conexion
+          ->query("SELECT COUNT(*) FROM proveedor")
+          ->fetchColumn();
+
+
         // Consultamos la suma de las ventas correspondientes al mes en curso
         $stmtMes = $conexion->query("SELECT SUM(total_pedido) AS total_mes FROM pedido WHERE MONTH(fecha) = MONTH(CURRENT_DATE()) AND YEAR(fecha) = YEAR(CURRENT_DATE())");
         $montoMes = $stmtMes->fetch(PDO::FETCH_ASSOC)['total_mes'] ?? 0;
@@ -31,7 +49,11 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
             "success"     => true,
             "monto_mes"   => (float)$montoMes,
             "monto_anual" => (float)$montoAnio,
-            "stock_bajo"  => $stockBajo
+            "stock_bajo"  => $stockBajo,
+            "total_unidades" => (int)$resumenStock["total_unidades"],
+            "productos_disponibles" => (int)$resumenStock["productos_disponibles"],
+            "total_clientes" => $totalClientes,
+            "total_proveedores" => $totalProveedores
         ], JSON_UNESCAPED_UNICODE);
 
     } catch (Exception $e) {

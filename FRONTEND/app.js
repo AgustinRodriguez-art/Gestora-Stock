@@ -13,15 +13,86 @@ const estadoApp = {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
-        
-    // Al cargar la página, detecta y muestra la pestaña activa
+    window.firebaseAuth.observarSesion((usuario) => {
+        if (usuario) {
+            mostrarAplicacion();
+        } else {
+            document.body.classList.remove("autenticado");
+        }
+    });
+});
 
+async function fetchConToken(url, opciones = {}) {
+    const token = await window.obtenerTokenFirebase();
+
+    if (!token) {
+        throw new Error("No se encontró una sesión de Firebase.");
+    }
+
+    const encabezados = new Headers(opciones.headers || {});
+    encabezados.set("Authorization", `Bearer ${token}`);
+
+    return fetch(url, {
+        ...opciones,
+        headers: encabezados
+    });
+}
+
+async function comprobarSesion() {
+    try {
+        const respuesta = await fetchConToken("../BACKEND/api_sesion.php", { credentials: "same-origin" });
+        const datos = await respuesta.json();
+        if (datos.logueado) mostrarAplicacion();
+    } catch (error) {
+        document.querySelector("#mensaje-login").textContent =
+            "No se pudo conectar con el servidor. Abrí la aplicación desde XAMPP (http://localhost/...) y no con Live Server.";
+    }
+}
+
+async function iniciarSesion(evento) {
+    evento.preventDefault();
+    const formulario = evento.currentTarget;
+    const boton = document.querySelector("#btn-iniciar-sesion");
+    const mensaje = document.querySelector("#mensaje-login");
+    mensaje.textContent = "";
+    boton.disabled = true;
+
+    try {
+        const respuesta = await fetchConToken("../BACKEND/api_login.php", {
+            method: "POST",
+            credentials: "same-origin",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                usuario: formulario.usuario.value.trim(),
+                contrasena: formulario.contrasena.value
+            })
+        });
+        const datos = await respuesta.json();
+        if (!respuesta.ok) throw new Error(datos.error || "No se pudo iniciar sesión.");
+        formulario.reset();
+        mostrarAplicacion();
+    } catch (error) {
+        mensaje.textContent = error.message || "No se pudo conectar con el servidor.";
+    } finally {
+        boton.disabled = false;
+    }
+}
+
+
+let aplicacionIniciada = false;
+function mostrarAplicacion() {
+    document.body.classList.add("autenticado");
+    if (aplicacionIniciada) return;
+    aplicacionIniciada = true;
+
+    // Al cargar la página, detecta y muestra la pestaña activa
     verificarYMostrarPestanaActiva();
 
     document.querySelector("#tablaClientes").addEventListener("click", manejarClientes);
     document.querySelector("#tablaProductos").addEventListener("click", manejarProductos);
     document.querySelector("#tablaProveedores").addEventListener("click", manejarProveedores);
     document.querySelector("#tablaPedidos").addEventListener("click", manejarPedidos);
+
 
     document.querySelector("#formClientes").addEventListener("submit", crearCliente);
     document.querySelector("#formProducto").addEventListener("submit", crearProducto);
@@ -52,14 +123,14 @@ document.addEventListener("DOMContentLoaded", () => {
         el.addEventListener("input", filtrarPedidos);
         el.addEventListener("change", filtrarPedidos);
     });
-});
+}
 
 // Función unificada para hacer fetch y guardar los datos en el estado
 async function cargarEntidad(url, selectorTbody, tipo) {
     try {
-        const respuesta = await fetch(url);
+        const respuesta = await fetchConToken(url);
         const datos = await respuesta.json();
-        
+
         // Guardamos en el estado según el tipo
         if (tipo === "productos") {
             estadoApp.productos = datos;
@@ -83,15 +154,15 @@ async function cargarEntidad(url, selectorTbody, tipo) {
 function renderizarTabla(datos, selectorTbody, tipo) {
     const cuerpo = document.querySelector(selectorTbody);
     if (!cuerpo) return;
-    
+
     cuerpo.innerHTML = "";
-    
+
     datos.forEach(item => {
         const fila = document.createElement("tr");
         fila.dataset.id = tipo === "pedidos"
     ? item.id_pedido
     : item.id || item.id_producto || item.id_cliente || item.id_proveedor;
-        
+
         if (tipo === "productos") {
             fila.innerHTML = `
                 <td>${item.id_producto}</td>
@@ -183,16 +254,11 @@ let carritoPedido = [];
 // Función que detecta qué pestaña está abierta actualmente
 async function verificarYMostrarPestanaActiva() {
     const panelActivo = document.querySelector('.pestaña.active-content');
-
     if (!panelActivo) return;
 
     const idTab = panelActivo.id;
-
     if (idTab === 'panel-principal') {
-        await Promise.all([
-            cargarUltimasOperacionesPanel(),
-            cargarResumenDashboard()
-        ]);
+        await Promise.all([cargarUltimasOperacionesPanel(), cargarResumenDashboard()]);
     } else if (idTab === 'inventario') {
         await cargarEntidad(URL_API, '#tablaProductos', 'productos');
     } else if (idTab === 'clientes') {
@@ -202,11 +268,7 @@ async function verificarYMostrarPestanaActiva() {
     } else if (idTab === 'historial-pedidos') {
         await cargarEntidad(URL_API3, '#tablaPedidos', 'pedidos');
     } else if (idTab === 'nuevo-pedido') {
-        await Promise.all([
-            cargarClientesEnSelect(),
-            cargarProductosCatalogoPedido()
-        ]);
-
+        await Promise.all([cargarClientesEnSelect(), cargarProductosCatalogoPedido()]);
         inicializarBotonGuardarPedido();
     }
 }
@@ -214,9 +276,9 @@ async function verificarYMostrarPestanaActiva() {
 // Cargar los pedidos en la pantalla principal
 async function cargarUltimasOperacionesPanel() {
     try {
-        const respuesta = await fetch(URL_API3);
+        const respuesta = await fetchConToken(URL_API3);
         const pedidos = await respuesta.json();
-        
+
         // Ordenar de más nuevo a más viejo (descendente por ID de pedido)
         pedidos.sort((a, b) => b.id_pedido - a.id_pedido);
 
@@ -229,12 +291,12 @@ async function cargarUltimasOperacionesPanel() {
 
 async function cargarResumenDashboard(){
     try {
-        const respuesta = await fetch(URL_API5);
+        const respuesta = await fetchConToken(URL_API5);
         const datos = await respuesta.json();
 
         if (!respuesta.ok || datos.error){
             throw new Error(datos.error || "No se pudo cargar el resumen");
-       
+
         }
 
         document.querySelector("#total-ventas").textContent =
@@ -254,15 +316,15 @@ async function cargarResumenDashboard(){
 
     } catch (error) {
         console.error("Error al cargar el resumen:", error);
-         
-         
+
+
     }
 }
 
 // Cargar clientes en el select id="cliente"
 async function cargarClientesEnSelect() {
     try {
-        const respuesta = await fetch(URL_API2);
+        const respuesta = await fetchConToken(URL_API2);
         const clientes = await respuesta.json();
         const selectCliente = document.querySelector("#cliente");
         if (!selectCliente) return;
@@ -282,7 +344,7 @@ async function cargarClientesEnSelect() {
 // Cargar productos en el catálogo de nuevo pedido respetando el stock
 async function cargarProductosCatalogoPedido() {
     try {
-        const respuesta = await fetch(URL_API);
+        const respuesta = await fetchConToken(URL_API);
         const productos = await respuesta.json();
         estadoApp.productos = productos; // Sincronizamos el estado
         const contenedor = document.querySelector("#catalogo-productos");
@@ -292,7 +354,7 @@ async function cargarProductosCatalogoPedido() {
         productos.forEach(prod => {
             const div = document.createElement("div");
             div.className = "prod-item";
-            
+
             // Si el stock es 0, se deshabilita visualmente y no permite seleccionar
             if (prod.stock <= 0) {
                 div.style.opacity = "0.5";
@@ -420,7 +482,7 @@ function inicializarBotonGuardarPedido() {
         };
 
         try {
-            const respuesta = await fetch(URL_API3, {
+            const respuesta = await fetchConToken(URL_API3, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(datosPedido)
@@ -428,7 +490,7 @@ function inicializarBotonGuardarPedido() {
 
             if (respuesta.ok) {
                 alert("¡Se genero el pedido!");
-                
+
                 // Limpiar carrito y formulario
                 carritoPedido = [];
                 renderizarCarrito();
@@ -451,7 +513,6 @@ async function cambiarPestana(event, idTabSeleccionada) {
     if (event) event.preventDefault();
 
     const loader = document.querySelector('#loader-pantalla');
-
     if (loader) {
         loader.classList.add('visible');
         loader.setAttribute('aria-hidden', 'false');
@@ -460,22 +521,12 @@ async function cambiarPestana(event, idTabSeleccionada) {
     const checkMenu = document.querySelector('#btn-menu');
     if (checkMenu) checkMenu.checked = false;
 
-    document.querySelectorAll('.pestaña-btn').forEach(boton => {
-        boton.classList.remove('active');
-    });
-    if (event && event.currentTarget) {
-        event.currentTarget.classList.add('active');
-    }
+    document.querySelectorAll('.pestaña-btn').forEach(boton => boton.classList.remove('active'));
+    if (event && event.currentTarget) event.currentTarget.classList.add('active');
 
-    const paneles = document.querySelectorAll('.pestaña');
-    paneles.forEach(panel => {
-        panel.classList.remove('active-content');
-    });
-
+    document.querySelectorAll('.pestaña').forEach(panel => panel.classList.remove('active-content'));
     const panelSeleccionado = document.getElementById(idTabSeleccionada);
-    if (panelSeleccionado) {
-        panelSeleccionado.classList.add('active-content');
-    }
+    if (panelSeleccionado) panelSeleccionado.classList.add('active-content');
 
     try {
         await Promise.all([
@@ -524,7 +575,7 @@ async function borrarRegistro(evento, urlApi) {
     try {
         console.log("ID que se intenta borrar:", id);
 
-        const respuesta = await fetch(`${urlApi}?id=${id}`, {
+        const respuesta = await fetchConToken(`${urlApi}?id=${id}`, {
           method: "DELETE"
         });
 
@@ -535,7 +586,7 @@ async function borrarRegistro(evento, urlApi) {
            return;
         }  
 
-        
+
          fila.remove(); // Borra la fila visualmente de la tabla
         }
         catch (error) {
@@ -562,7 +613,7 @@ async function editarCliente(evento) {
     if (nuevoTelefono === null) return;
 
     try {
-        const respuesta = await fetch(`${URL_API2}?id=${id}`, {
+        const respuesta = await fetchConToken(`${URL_API2}?id=${id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -603,7 +654,7 @@ async function editarProducto(evento) {
     }
 
     try {
-        const respuesta = await fetch(`${URL_API}?id=${id}`, {
+        const respuesta = await fetchConToken(`${URL_API}?id=${id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
@@ -636,7 +687,7 @@ async function editarProveedor(evento) {
     if (nuevoMail === null) return;
 
     try {
-        const respuesta = await fetch(`${URL_API4}?id=${id}`, {
+        const respuesta = await fetchConToken(`${URL_API4}?id=${id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -668,7 +719,7 @@ function toggleFormulario(idContenedor) {
 
 async function crearCliente(evento) {
     evento.preventDefault();
-    
+
     const nuevoCliente = {
         nombre_cliente: document.querySelector("#campoNombreCliente").value,
         direccion: document.querySelector("#campoDireccion").value,
@@ -676,7 +727,7 @@ async function crearCliente(evento) {
     };
 
     try {
-        const respuesta = await fetch(URL_API2, {
+        const respuesta = await fetchConToken(URL_API2, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(nuevoCliente)
@@ -706,7 +757,7 @@ async function crearProducto(evento) {
     };
 
     try {
-        const respuesta = await fetch(URL_API, {
+        const respuesta = await fetchConToken(URL_API, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(nuevoProducto)
@@ -732,7 +783,7 @@ async function crearProveedor(evento) {
     };
 
     try {
-        const respuesta = await fetch(URL_API4, {
+        const respuesta = await fetchConToken(URL_API4, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(nuevoProveedor)
@@ -886,7 +937,3 @@ function filtrarPedidos() {
 
     renderizarTabla(lista, "#tablaPedidos", "pedidos");
 }
-
-
-
-

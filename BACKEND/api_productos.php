@@ -22,6 +22,9 @@ if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
     exit();
 }
 
+require_once __DIR__ . "/firebase_auth.php";
+$usuarioFirebase = exigirUsuarioFirebase();
+
 $metodo = $_SERVER["REQUEST_METHOD"];
 
 // Si es POST, agregamos un nuevo producto al stoc

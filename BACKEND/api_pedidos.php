@@ -21,6 +21,9 @@ if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
     exit();
 }
 
+require_once __DIR__ . "/firebase_auth.php";
+$usuarioFirebase = exigirUsuarioFirebase();
+
 $metodo = $_SERVER["REQUEST_METHOD"];
 
 // POST: Registrar un pedido y descontar stock con transaccion
@@ -113,5 +116,64 @@ if ($metodo === "GET") {
 
     echo json_encode($pedidos, JSON_UNESCAPED_UNICODE);
     exit();
-}
+  }
+  if ($metodo === "DELETE") {
+    if (!isset($_GET["id"])) {
+        http_response_code(400);
+        echo json_encode(["error" => "Falta el id del pedido"]);
+        exit();
+    }
+
+    try {
+        $conexion->beginTransaction();
+
+        $idPedido = (int)$_GET["id"];
+
+        // Buscamos los productos y cantidades de este pedido
+        $stmtDetalle = $conexion->prepare(
+            "SELECT id_producto, cantidad
+             FROM producto_pedido
+             WHERE id_pedido = :id"
+        );
+        $stmtDetalle->execute([":id" => $idPedido]);
+        $productos = $stmtDetalle->fetchAll(PDO::FETCH_ASSOC);
+
+        // Devolvemos cada cantidad al stock
+        $stmtStock = $conexion->prepare(
+            "UPDATE producto
+             SET stock = stock + :cantidad
+             WHERE id_producto = :id_producto"
+        );
+
+        foreach ($productos as $producto) {
+            $stmtStock->execute([
+                ":cantidad" => $producto["cantidad"],
+                ":id_producto" => $producto["id_producto"]
+            ]);
+        }
+
+        // El detalle se borra en cascada según la relación de tu base
+        $stmtBorrar = $conexion->prepare(
+            "DELETE FROM pedido WHERE id_pedido = :id"
+        );
+        $stmtBorrar->execute([":id" => $idPedido]);
+
+        if ($stmtBorrar->rowCount() === 0) {
+            throw new Exception("No se encontró ese pedido");
+        }
+
+        $conexion->commit();
+
+        echo json_encode(["success" => true]);
+    } catch (Exception $e) {
+        if ($conexion->inTransaction()) {
+            $conexion->rollBack();
+        }
+
+        http_response_code(500);
+        echo json_encode(["error" => $e->getMessage()]);
+    }
+
+    exit();
+  }
 ?>

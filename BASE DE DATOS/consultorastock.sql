@@ -1,4 +1,4 @@
--- Active: 1790625178723@@127.0.0.1@3306@consultorastock
+-- Active: 1791922946155@@127.0.0.1@3306@mysql
 DROP DATABASE IF EXISTS consultorastock;
 CREATE DATABASE IF NOT EXISTS consultorastock CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -68,6 +68,14 @@ CREATE TABLE IF NOT EXISTS Producto_pedido (
     ON DELETE RESTRICT
     ON UPDATE CASCADE
 )
+
+CREATE TABLE IF NOT EXISTS usuarios (
+    id_usuario INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    nombre_usuario VARCHAR(100) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    creado_en TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 
 
 

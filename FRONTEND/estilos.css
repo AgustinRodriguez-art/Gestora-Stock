@@ -36,7 +36,7 @@ body {
 }
 
 #btn-menu:checked ~ .container-menu {
-  width: 270px;
+  width: 250px;
 }
 
 .cont-menu {
@@ -127,15 +127,30 @@ body {
   min-height: 100vh;
   margin-left: 68px;
   padding: 24px;
+  transition: margin-left 300ms ease;
+}
+
+#btn-menu:checked ~ .contenido-principal {
+  margin-left: 250px;
 }
 
 /* ==========================================================
    05. PANEL PRINCIPAL
    ========================================================== */
 
-.panel-general-texto{
+.panel-general-texto,
+.texto-formularioPedido,
+.texto-inventario,
+.texto-historialPedidos,
+.texto-clientes,
+.texto-proveedores {
   font-size: 30px;
+  font-family: 'Inter', Arial, sans-serif;
+  font-weight: 600;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 10px;
   margin: 0 0 20px;
+  text-align: center;
 }
 
 .cajas-resumen {
@@ -410,6 +425,7 @@ form button[type="submit"] {
     cursor: pointer;
 }
 
+/* Ajustes que ya estaban en el proyecto */
 .contenido-principal {
   background-color: #f4f4f4;
 }
@@ -468,25 +484,43 @@ form button[type="submit"] {
   .caja { transition: none; }
 }
 
-/* Titulos de seccion */
-.panel-general-texto,
-.texto-formularioPedido,
-.texto-inventario,
-.texto-historialPedidos,
-.texto-clientes,
-.texto-proveedores {
-  font-size: 30px;
-  font-family: 'Inter', Arial, sans-serif;
-  font-weight: 600;
-  border-bottom: 2px solid #e5e7eb;
-  padding-bottom: 10px;
-  margin: 0 0 20px;
-  text-align: center;
+/* Inicio de sesión PHP */
+body:not(.autenticado) .container-menu,
+body:not(.autenticado) .contenido-principal,
+body:not(.autenticado) #btn-menu,
+#pantalla-login { display: none; }
+
+body:not(.autenticado) #pantalla-login {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: linear-gradient(135deg, #1f2341, #4d75e4);
 }
 
-/* SECCION DE AANIMACIONES */
+.tarjeta-login {
+  width: min(100%, 420px);
+  padding: 36px;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, .2);
+}
 
-.loader-pantalla{
+.tarjeta-login h1 { margin: 12px 0 8px; color: #1f2341; text-align: center; }
+.tarjeta-login > p { margin-bottom: 24px; color: #718096; text-align: center; }
+.login-icono { color: #4d75e4; font-size: 34px; text-align: center; }
+.tarjeta-login form { display: grid; gap: 10px; }
+.tarjeta-login label { margin-top: 8px; font-weight: 600; }
+.tarjeta-login input { width: 100%; padding: 12px; border: 1px solid #cbd5e0; border-radius: 7px; font: inherit; }
+.tarjeta-login button, #btn-cerrar-sesion { padding: 12px; border: 0; border-radius: 7px; background: #4d75e4; color: #fff; font: inherit; cursor: pointer; }
+.tarjeta-login button { margin-top: 12px; }
+.tarjeta-login button:disabled { opacity: .65; cursor: wait; }
+#login-mensaje, #registro-mensaje { min-height: 20px; margin: 4px 0 0; color: #b42318; font-size: 14px; }
+#btn-cerrar-sesion { display: flex; align-items: center; gap: 12px; width: 100%; margin-top: 20px; background: #343958; text-align: left; }
+#btn-cerrar-sesion:hover { background: #4d75e4; }
+
+/* Indicador de carga al cambiar de sección */
+.loader-pantalla {
   position: fixed;
   inset: 0;
   display: none;
@@ -496,47 +530,94 @@ form button[type="submit"] {
   z-index: 1000;
 }
 
-.loader-pantalla.visible{
+.loader-pantalla.visible {
   display: flex;
 }
 
 #loader-pantalla > svg {
- width: 3.25em;
- transform-origin: center;
- animation: rotate4 2s linear infinite;
+  width: 3.25em;
+  transform-origin: center;
+  animation: rotate4 2s linear infinite;
 }
 
 #loader-pantalla > svg circle {
- fill: none;
- stroke: hsl(214, 97%, 59%);
- stroke-width: 2;
- stroke-dasharray: 1, 200;
- stroke-dashoffset: 0;
- stroke-linecap: round;
- animation: dash4 1.5s ease-in-out infinite;
+  fill: none;
+  stroke: hsl(214, 97%, 59%);
+  stroke-width: 2;
+  stroke-dasharray: 1, 200;
+  stroke-dashoffset: 0;
+  stroke-linecap: round;
+  animation: dash4 1.5s ease-in-out infinite;
 }
 
-
-
 @keyframes rotate4 {
- 100% {
-  transform: rotate(360deg);
- }
+  100% { transform: rotate(360deg); }
 }
 
 @keyframes dash4 {
- 0% {
-  stroke-dasharray: 1, 200;
-  stroke-dashoffset: 0;
- }
-
- 50% {
-  stroke-dasharray: 90, 200;
-  stroke-dashoffset: -35px;
- }
-
- 100% {
-  stroke-dashoffset: -125px;
- }
+  0% { stroke-dasharray: 1, 200; stroke-dashoffset: 0; }
+  50% { stroke-dasharray: 90, 200; stroke-dashoffset: -35px; }
+  100% { stroke-dashoffset: -125px; }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  #loader-pantalla > svg,
+  #loader-pantalla > svg circle { animation-duration: 3s; }
+}
+
+.cont-menu {
+  display: flex;
+  flex-direction: column;
+}
+
+#boton-salir {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 48px;
+  margin-top: auto;
+  padding: 10px 8px;
+  border: 0;
+  border-left: 5px solid transparent;
+  border-radius: 5px;
+  background: transparent;
+  color: #e4b8c1;
+  font: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+#boton-salir i {
+  width: 34px;
+  flex: 0 0 34px;
+  text-align: center;
+  font-size: 18px;
+}
+
+#boton-salir span {
+  max-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  transition: max-width 300ms ease, opacity 180ms ease;
+}
+
+#btn-menu:checked ~ .container-menu #boton-salir {
+  justify-content: flex-start;
+}
+
+#btn-menu:checked ~ .container-menu #boton-salir span {
+  max-width: 190px;
+  opacity: 1;
+  visibility: visible;
+}
+
+#boton-salir:hover,
+#boton-salir:focus-visible {
+  background: #693d52;
+  color: #fff;
+  outline: none;
+}

@@ -9,11 +9,53 @@
     </head>
 
     <body>
-        
+        <section id="pantalla-login" aria-labelledby="titulo-login">
+            <div class="tarjeta-login">
+                <h1 id="titulo-login">Gestora de Stock</h1>
+
+                <section id="panel-registro">
+                    <h2>Crear cuenta</h2>
+                    <form id="form-registro">
+                        <label for="registro-email">Correo electrónico</label>
+                        <input id="registro-email" type="email" autocomplete="email" required>
+
+                        <label for="registro-password">Contraseña</label>
+                        <input id="registro-password" type="password" autocomplete="new-password" required>
+
+                        <label for="registro-confirmar">Confirmar contraseña</label>
+                        <input id="registro-confirmar" type="password" autocomplete="new-password" required>
+
+                        <button type="submit">Crear cuenta</button>
+                        <p id="registro-mensaje" role="alert"></p>
+                    </form>
+                    <button id="mostrar-login" type="button">Ya tengo cuenta</button>
+                </section>
+
+                <section id="panel-login" hidden>
+                    <h2>Iniciar sesión</h2>
+                    <form id="form-login">
+                        <label for="login-email">Correo electrónico</label>
+                        <input id="login-email" type="email" autocomplete="email" required>
+
+                        <label for="login-password">Contraseña</label>
+                        <input id="login-password" type="password" autocomplete="current-password" required>
+
+                        <button type="submit">Iniciar sesión</button>
+                        <p id="login-mensaje" role="alert"></p>
+                    </form>
+                    <button id="mostrar-registro" type="button">Crear una cuenta</button>
+                </section>
+            </div>
+        </section>
+
+    <div id="aplicacion" hidden>
+
+
+
         <input type="checkbox" id="btn-menu" />
         <aside class="container-menu">
             <div class="cont-menu">
-                
+
                 <label for="btn-menu" class="btn-menu" aria-label="Expandir o contraer el menu" title="Expandir o contraer menu">
                     <i class="fa-solid fa-bars"></i>
                 </label>
@@ -37,17 +79,22 @@
                     <a href="#" class="pestaña-btn" data-seccion="proveedores" title="Proveedores" aria-label="Proveedores" onclick="cambiarPestana(event, 'proveedores')">
                         <i class="fa-solid fa-truck"></i><span>PROVEEDORES</span>
                     </a>
-</nav>
+                </nav>
+                <button id="boton-salir" type="button" aria-label="Cerrar sesion" title="Cerrar sesion">
+                    <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+                    <span>Cerrar sesion</span>
+                </button>
             </div>
         </aside>
 
         <div id="loader-pantalla" class="loader-pantalla" aria-hidden="true">
-            <svg viewBox="25 25 50 50">
+            <svg viewBox="25 25 50 50" aria-label="Cargando">
                 <circle r="20" cy="50" cx="50"></circle>
             </svg>
         </div>
 
 <main class="contenido-principal">
+
             <!-- PANEL PRINCIPAL -->
             <div id="panel-principal" class="pestaña active-content">
                 <p class="panel-general-texto">RESUMEN GENERAL DEL SISTEMA</p>
@@ -90,7 +137,6 @@
                     </table>
                 </div>
             </div>
-
 <!-- NUEVO PEDIDO -->
             <div id="nuevo-pedido" class="pestaña">
                 <p class="texto-formularioPedido">REGISTRAR UN NUEVO PEDIDO</p>
@@ -284,8 +330,9 @@
             </div>
 
         </main>
+    </div>
 
         <script src="app.js"></script>
+        <script type="module" src="firebase-auth.js"></script>
     </body>
 </html>
-
