@@ -1,0 +1,14 @@
+<?php
+require_once __DIR__ . "/config.php";
+header("Content-Type: application/json; charset=utf-8");
+
+try {
+    // Inicializa la conexion segura con PDO
+    $conexion = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4", DB_USER, DB_PASS);
+    $conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    http_response_code(500);
+    echo json_encode(["error" => "No se pudo conectar"]);
+    exit;
+}
+?>

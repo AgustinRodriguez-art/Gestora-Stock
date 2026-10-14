@@ -1,0 +1,179 @@
+<?php
+require "conexion.php";
+
+$origen = $_SERVER["HTTP_ORIGIN"] ?? "";
+$origenesPermitidos = [
+    "http://127.0.0.1:5500",
+    "http://localhost:5500"
+];
+
+if (in_array($origen, $origenesPermitidos, true)) {
+    header("Access-Control-Allow-Origin: $origen");
+    header("Vary: Origin");
+}
+
+header("Content-Type: application/json; charset=utf-8");
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type");
+
+if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
+    http_response_code(200);
+    exit();
+}
+
+require_once __DIR__ . "/firebase_auth.php";
+$usuarioFirebase = exigirUsuarioFirebase();
+
+$metodo = $_SERVER["REQUEST_METHOD"];
+
+// POST: Registrar un pedido y descontar stock con transaccion
+if ($metodo === "POST") {
+    $cuerpo = json_decode(file_get_contents("php://input"), true);
+
+    if (!isset($cuerpo["id_cliente"], $cuerpo["productos"]) || empty($cuerpo["productos"])) {
+        http_response_code(400);
+        echo json_encode(["error" => "Faltan datos del pedido o el carrito esta vacio"]);
+        exit();
+    }
+
+    try {
+        $conexion->beginTransaction();
+
+        $id_cliente = $cuerpo["id_cliente"];
+        $productos = $cuerpo["productos"];
+        $total_pedido = 0;
+
+        foreach ($productos as $item) {
+            $total_pedido += ($item["cantidad"] * $item["precio_unitario"]);
+        }
+
+        // Insertar cabecera del pedido
+        $stmtPedido = $conexion->prepare("INSERT INTO pedido (id_cliente, total_pedido) VALUES (:id_cliente, :total_pedido)");
+        $stmtPedido->execute([
+            ":id_cliente"   => $id_cliente,
+            ":total_pedido" => $total_pedido
+        ]);
+        $id_pedido = $conexion->lastInsertId();
+
+        // Insertar detalle y actualizar stock
+        foreach ($productos as $item) {
+            $stmtDetalle = $conexion->prepare(
+                "INSERT INTO producto_pedido (id_pedido, id_producto, cantidad, precio_unitario) 
+                 VALUES (:id_pedido, :id_producto, :cantidad, :precio_unitario)"
+            );
+            $stmtDetalle->execute([
+                ":id_pedido"       => $id_pedido,
+                ":id_producto"     => $item["id_producto"],
+                ":cantidad"        => $item["cantidad"],
+                ":precio_unitario" => $item["precio_unitario"]
+            ]);
+
+            $stmtStock = $conexion->prepare("UPDATE producto SET stock = stock - :cantidad WHERE id_producto = :id_producto");
+            $stmtStock->execute([
+                ":cantidad"    => $item["cantidad"],
+                ":id_producto" => $item["id_producto"]
+            ]);
+        }
+
+        $conexion->commit();
+        http_response_code(201);
+        echo json_encode([
+            "success"   => true,
+            "id_pedido" => (int)$id_pedido,
+            "total"     => $total_pedido
+        ], JSON_UNESCAPED_UNICODE);
+
+    } catch (Exception $e) {
+        $conexion->rollBack();
+        http_response_code(500);
+        echo json_encode(["error" => $e->getMessage()], JSON_UNESCAPED_UNICODE);
+    }
+    exit();
+}
+
+// GET: Listar todos los pedidos con nombre de cliente
+if ($metodo === "GET") {
+    $consulta = $conexion->query(
+        "SELECT p.*, c.nombre_cliente 
+         FROM pedido p 
+         JOIN clientes c ON p.id_cliente = c.id_cliente"
+    );
+    $pedidos = $consulta->fetchAll(PDO::FETCH_ASSOC);
+
+    // Para cada pedido, buscamos sus productos en la tabla intermedia (producto_pedido + producto)
+    foreach ($pedidos as &$pedido) {
+        $stmtProd = $conexion->prepare(
+            "SELECT pp.cantidad, pp.precio_unitario, pr.nombre AS nombre_producto
+             FROM producto_pedido pp
+             JOIN producto pr ON pp.id_producto = pr.id_producto
+             WHERE pp.id_pedido = :id_pedido"
+        );
+        $stmtProd->execute([":id_pedido" => $pedido["id_pedido"]]);
+        // Guardamos los productos dentro de una nueva propiedad llamada "productos"
+        $pedido["productos"] = $stmtProd->fetchAll(PDO::FETCH_ASSOC);
+    }
+    unset($pedido);
+
+    echo json_encode($pedidos, JSON_UNESCAPED_UNICODE);
+    exit();
+  }
+  if ($metodo === "DELETE") {
+    if (!isset($_GET["id"])) {
+        http_response_code(400);
+        echo json_encode(["error" => "Falta el id del pedido"]);
+        exit();
+    }
+
+    try {
+        $conexion->beginTransaction();
+
+        $idPedido = (int)$_GET["id"];
+
+        // Buscamos los productos y cantidades de este pedido
+        $stmtDetalle = $conexion->prepare(
+            "SELECT id_producto, cantidad
+             FROM producto_pedido
+             WHERE id_pedido = :id"
+        );
+        $stmtDetalle->execute([":id" => $idPedido]);
+        $productos = $stmtDetalle->fetchAll(PDO::FETCH_ASSOC);
+
+        // Devolvemos cada cantidad al stock
+        $stmtStock = $conexion->prepare(
+            "UPDATE producto
+             SET stock = stock + :cantidad
+             WHERE id_producto = :id_producto"
+        );
+
+        foreach ($productos as $producto) {
+            $stmtStock->execute([
+                ":cantidad" => $producto["cantidad"],
+                ":id_producto" => $producto["id_producto"]
+            ]);
+        }
+
+        // El detalle se borra en cascada según la relación de tu base
+        $stmtBorrar = $conexion->prepare(
+            "DELETE FROM pedido WHERE id_pedido = :id"
+        );
+        $stmtBorrar->execute([":id" => $idPedido]);
+
+        if ($stmtBorrar->rowCount() === 0) {
+            throw new Exception("No se encontró ese pedido");
+        }
+
+        $conexion->commit();
+
+        echo json_encode(["success" => true]);
+    } catch (Exception $e) {
+        if ($conexion->inTransaction()) {
+            $conexion->rollBack();
+        }
+
+        http_response_code(500);
+        echo json_encode(["error" => $e->getMessage()]);
+    }
+
+    exit();
+  }
+?>
