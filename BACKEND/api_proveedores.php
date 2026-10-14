@@ -128,11 +128,4 @@ if ($metodo === "DELETE") {
     http_response_code(204);
     exit();
 }
-
-
-
-
-
-
-
 ?>
