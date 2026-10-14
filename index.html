@@ -50,17 +50,17 @@
 
     <div id="aplicacion" hidden>
 
-        
-        
+
+
         <input type="checkbox" id="btn-menu" />
         <aside class="container-menu">
             <div class="cont-menu">
-                
+
                 <label for="btn-menu" class="btn-menu" aria-label="Expandir o contraer el menu" title="Expandir o contraer menu">
                     <i class="fa-solid fa-bars"></i>
                 </label>
 
-                <nav>
+<nav>
                     <a href="#" class="pestaña-btn active" data-seccion="panel-principal" title="Panel principal" aria-label="Panel principal" onclick="cambiarPestana(event, 'panel-principal')">
                         <i class="fa-solid fa-house"></i><span>PANEL PRINCIPAL</span>
                     </a>
@@ -80,16 +80,24 @@
                         <i class="fa-solid fa-truck"></i><span>PROVEEDORES</span>
                     </a>
                 </nav>
-                <button id="boton-salir" type="button"><i class="fa-solid fa-right-from-bracket"></i><span>Cerrar sesión</span></button>
+                <button id="boton-salir" type="button" aria-label="Cerrar sesion" title="Cerrar sesion">
+                    <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+                    <span>Cerrar sesion</span>
+                </button>
             </div>
         </aside>
 
-        <main class="contenido-principal">
+        <div id="loader-pantalla" class="loader-pantalla" aria-hidden="true">
+            <svg viewBox="25 25 50 50" aria-label="Cargando">
+                <circle r="20" cy="50" cx="50"></circle>
+            </svg>
+        </div>
+
+<main class="contenido-principal">
 
             <!-- PANEL PRINCIPAL -->
             <div id="panel-principal" class="pestaña active-content">
-                <h2>Panel Principal</h2>
-                <p class="panel-general-texto">Resumen general del sistema de stock.</p>
+                <p class="panel-general-texto">RESUMEN GENERAL DEL SISTEMA</p>
 
                 <div class="cajas-resumen">
                     <div class="caja">
@@ -104,7 +112,7 @@
                     <div class="caja alerta">
                         <h4>ALERTA STOCK BAJO</h4>
                         <p id="alerta-stock">0</p>
-                        <small id="alerta-stock">alerta 5 unidades</small>
+                        <small id="alerta-stock-umbral">Alerta desde 5 unidades</small>
                     </div>
                     <div class="caja">
                         <h4>CLIENTES Y PROVEEDORES</h4>
@@ -129,69 +137,16 @@
                     </table>
                 </div>
             </div>
-<!-- FORMULARIO LOGIN -->
-    <section id="pantalla-login" class="pantalla-login">
-        <div class="login-card">
-
-            <div id="panel-registro">
-                <h1>Crear cuenta</h1>
-                <p>Registrate para usar Gestora de Stock</p>
-
-                <form id="form-registro">
-                    <label for="registro-email">Email</label>
-                    <input id="registro-email" type="email" required autocomplete="email">
-
-                    <label for="registro-password">Contraseña</label>
-                    <input id="registro-password" type="password" required minlength="12" autocomplete="new-password">
-
-                    <label for="registro-confirmar">Repetí la contraseña</label>
-                    <input id="registro-confirmar" type="password" required minlength="12" autocomplete="new-password">
-
-                    <button type="submit">Crear cuenta</button>
-                </form>
-
-                <p id="registro-mensaje" role="status" aria-live="polite"></p>
-                <p>
-                    ¿Ya tenés cuenta?
-                    <button id="mostrar-login" class="auth-link" type="button">Ya tengo cuenta</button>
-                </p>
-            </div>
-
-            <div id="panel-login" hidden>
-                <h1>Iniciar sesión</h1>
-                <p>Ingresá con tu cuenta</p>
-
-                <form id="form-login">
-                    <label for="login-email">Email</label>
-                    <input id="login-email" type="email" required autocomplete="email">
-
-                    <label for="login-password">Contraseña</label>
-                    <input id="login-password" type="password" required autocomplete="current-password">
-
-                    <button type="submit">Ingresar</button>
-                </form>
-
-                <p id="login-mensaje" role="status" aria-live="polite"></p>
-                <p>
-                    ¿Todavía no tenés cuenta?
-                    <button id="mostrar-registro" class="auth-link" type="button">Crear cuenta</button>
-                </p>
-            </div>
-
-        </div>
-    </section>
-
 <!-- NUEVO PEDIDO -->
             <div id="nuevo-pedido" class="pestaña">
-                <h2>Nuevo Pedido</h2>
-                <p>Formulario para registrar un nuevo pedido.</p>
+                <p class="texto-formularioPedido">REGISTRAR UN NUEVO PEDIDO</p>
 
                 <div class="pedido-contenedor">
                     <div class="pedido-izq">
                         <div class="caja-formulario">
                             <label>Seleccionar Cliente:</label>
                             <select id="cliente">
-                                <option value="">Seleccionar...</option>
+                                <option value="">-- Seleccionar... --</option>
                             </select>
                         </div>
 
@@ -214,7 +169,7 @@
 
 <!-- INVENTARIO -->
             <div id="inventario" class="pestaña">
-                <h2>Inventario</h2>
+                <p class="texto-inventario">CONTROL DE PRODUCTOS</p>
                 <button class="btn-desplegar-busq" onclick="toggleBusqueda('busquedaInventario')">Buscar</button>
 
 <div id="busquedaInventario" class="busquedaDesplegable oculto">
@@ -262,7 +217,7 @@
 
             <!-- HISTORIAL DE PEDIDOS -->
             <div id="historial-pedidos" class="pestaña">
-                <h2>Historial de Pedidos</h2>
+                <p class="texto-historialPedidos">HISTORIAL DE PEDIDOS</p>
 
                 <button class="btn-desplegar-busq" onclick="toggleBusqueda('busquedaPedidos')">Buscar</button>
 
@@ -293,8 +248,7 @@
 
             <!-- CLIENTES -->
             <div id="clientes" class="pestaña">
-                <h2>Clientes</h2>
-                <p>Gestión de clientes</p>
+                <p class="texto-clientes">GESTION DE CLIENTES</p>
 
                 <button class="btn-desplegar-busq" onclick="toggleBusqueda('busquedaClientes')">Buscar</button>
 
@@ -336,8 +290,7 @@
 
             <!-- PROVEEDORES -->
             <div id="proveedores" class="pestaña">
-                <h2>Proveedores</h2>
-                <p>Gestión de proveedores</p>
+                <p class="texto-proveedores">GESTION DE PROVEEDORES</p>
 
                 <button class="btn-desplegar-busq" onclick="toggleBusqueda('busquedaProveedores')">Buscar</button>
 
@@ -383,4 +336,3 @@
         <script type="module" src="firebase-auth.js"></script>
     </body>
 </html>
-
