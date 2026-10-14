@@ -9,11 +9,11 @@
     </head>
 
     <body>
-        
+
         <input type="checkbox" id="btn-menu" />
         <aside class="container-menu">
             <div class="cont-menu">
-                
+
                 <label for="btn-menu" class="btn-menu" aria-label="Expandir o contraer el menu" title="Expandir o contraer menu">
                     <i class="fa-solid fa-bars"></i>
                 </label>
@@ -45,7 +45,7 @@
 
             <!-- PANEL PRINCIPAL -->
             <div id="panel-principal" class="pestaña active-content">
-                <p class="panel-general-texto"> Resumen general del sistema de stock.</p>
+                <p class="panel-general-texto">RESUMEN GENERAL DEL SISTEMA</p>
 
                 <div class="cajas-resumen">
                     <div class="caja">
@@ -55,10 +55,12 @@
                     <div class="caja">
                         <h4>PRODUCTOS EN STOCK</h4>
                         <p id="productos-stock">0</p>
+                        <small id="unidades-stock">0 unidades</small>
                     </div>
                     <div class="caja alerta">
                         <h4>ALERTA STOCK BAJO</h4>
                         <p id="alerta-stock">0</p>
+                        <small id="alerta-stock-umbral">Alerta desde 5 unidades</small>
                     </div>
                     <div class="caja">
                         <h4>CLIENTES Y PROVEEDORES</h4>
@@ -86,8 +88,7 @@
 
 <!-- NUEVO PEDIDO -->
             <div id="nuevo-pedido" class="pestaña">
-                <h2>Nuevo Pedido</h2>
-                <p>Formulario para registrar un nuevo pedido.</p>
+                <p class="texto-formularioPedido">REGISTRAR UN NUEVO PEDIDO</p>
 
                 <div class="pedido-contenedor">
                     <div class="pedido-izq">
@@ -117,8 +118,7 @@
 
 <!-- INVENTARIO -->
             <div id="inventario" class="pestaña">
-                <h2>Inventario</h2>
-                <p>Listado y control de la tabla `producto`.</p>
+                <p class="texto-inventario">CONTROL DE PRODUCTOS</p>
                 <button class="btn-desplegar-busq" onclick="toggleBusqueda('busquedaInventario')">Buscar</button>
 
 <div id="busquedaInventario" class="busquedaDesplegable oculto">
@@ -166,8 +166,7 @@
 
             <!-- HISTORIAL DE PEDIDOS -->
             <div id="historial-pedidos" class="pestaña">
-                <h2>Historial de Pedidos</h2>
-                <p>Listado de las tablas `pedido` y `producto_pedido`.</p>
+                <p class="texto-historialPedidos">HISTORIAL DE PEDIDOS</p>
 
                 <button class="btn-desplegar-busq" onclick="toggleBusqueda('busquedaPedidos')">Buscar</button>
 
@@ -198,8 +197,7 @@
 
             <!-- CLIENTES -->
             <div id="clientes" class="pestaña">
-                <h2>Clientes</h2>
-                <p>Gestión de clientes.</p>
+                <p class="texto-clientes">GESTION DE CLIENTES</p>
 
                 <button class="btn-desplegar-busq" onclick="toggleBusqueda('busquedaClientes')">Buscar</button>
 
@@ -241,8 +239,7 @@
 
             <!-- PROVEEDORES -->
             <div id="proveedores" class="pestaña">
-                <h2>Proveedores</h2>
-                <p>Gestión de la tabla `proveedor`.</p>
+                <p class="texto-proveedores">GESTION DE PROVEEDORES</p>
 
                 <button class="btn-desplegar-busq" onclick="toggleBusqueda('busquedaProveedores')">Buscar</button>
 

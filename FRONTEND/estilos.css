@@ -9,6 +9,8 @@
 }
 
 body {
+  min-height: 100vh;
+  background-color: #f4f4f4;
   font-family: Arial, Helvetica, sans-serif;
   color: #333;
 }
@@ -122,8 +124,10 @@ body {
 }
 
 .contenido-principal {
+  min-height: 100vh;
   margin-left: 68px;
   padding: 24px;
+  transition: margin-left 300ms ease;
   transition: margin-left 300ms ease;
 }
 
@@ -137,7 +141,7 @@ body {
 
 .panel-general-texto{
   font-size: 30px;
-  margin-left: 100;
+  margin: 0 0 20px;
 }
 
 .cajas-resumen {
@@ -302,7 +306,7 @@ body {
     margin-bottom: 10px;
 }
 
-.tabla-carrito th, 
+.tabla-carrito th,
 .tabla-carrito td {
     padding: 8px 10px;
     font-size: 12px;
@@ -410,4 +414,79 @@ form button[type="submit"] {
     border-radius: 6px;
     font-weight: bold;
     cursor: pointer;
+}
+
+/* Ajustes que ya estaban en el proyecto */
+.contenido-principal {
+  background-color: #f4f4f4;
+}
+
+.pestaña {
+  width: 90%;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.pestaña.active-content {
+  animation: aparecer 0.4s ease-out;
+}
+
+.cajas-resumen {
+  flex-wrap: wrap;
+}
+
+.caja {
+  border-top: 4px solid #4a6fa5;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.caja:nth-child(2) { border-top-color: #3b9b78; }
+.caja:nth-child(3) { border-top-color: #dc3545; }
+.caja:nth-child(4) { border-top-color: #8164a8; }
+
+.caja:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+}
+
+.caja small {
+  display: block;
+  margin-top: 6px;
+  color: #718096;
+  font-size: 12px;
+}
+
+@keyframes aparecer {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 700px) {
+  .contenido-principal { padding: 18px 12px; }
+  .pestaña { width: 100%; }
+  .cajas-resumen { gap: 8px; }
+  .caja { min-width: 100%; margin: 0; }
+  .pedido-contenedor { flex-direction: column; }
+  table { display: block; overflow-x: auto; white-space: nowrap; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pestaña.active-content { animation: none; }
+  .caja { transition: none; }
+}
+
+/* Titulos de seccion */
+.panel-general-texto,
+.texto-formularioPedido,
+.texto-inventario,
+.texto-historialPedidos,
+.texto-clientes,
+.texto-proveedores {
+  font-size: 30px;
+  font-family: 'Inter', Arial, sans-serif;
+  font-weight: 600;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 10px;
+  margin: 0 0 20px;
+  text-align: center;
 }

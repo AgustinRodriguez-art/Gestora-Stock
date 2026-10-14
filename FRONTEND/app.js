@@ -2,7 +2,9 @@ const URL_API = "./BACKEND/api_productos.php";
 const URL_API2 = "./BACKEND/api_clientes.php";
 const URL_API3 = "./BACKEND/api_pedidos.php";
 const URL_API4 = "./BACKEND/api_proveedores.php";
+const URL_API5 = "./BACKEND/api_dashboard.php";
 
+// Objeto de estado global para guardar copias de los datos originales
 const estadoApp = {
     productos: [],
     clientes: [],
@@ -11,6 +13,7 @@ const estadoApp = {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
+    // Al cargar la página, detecta y muestra la pestaña activa
     verificarYMostrarPestanaActiva();
 
     document.querySelector("#tablaClientes").addEventListener("click", manejarClientes);
@@ -49,11 +52,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
+// Función unificada para hacer fetch y guardar los datos en el estado
 async function cargarEntidad(url, selectorTbody, tipo) {
     try {
         const respuesta = await fetch(url);
         const datos = await respuesta.json();
-        
+
+        // Guardamos en el estado según el tipo
         if (tipo === "productos") {
             estadoApp.productos = datos;
             filtrarInventario();
@@ -72,16 +77,19 @@ async function cargarEntidad(url, selectorTbody, tipo) {
     }
 }
 
+// Función unificada para pintar las filas en cualquier tabla
 function renderizarTabla(datos, selectorTbody, tipo) {
     const cuerpo = document.querySelector(selectorTbody);
     if (!cuerpo) return;
-    
+
     cuerpo.innerHTML = "";
-    
+
     datos.forEach(item => {
         const fila = document.createElement("tr");
-        fila.dataset.id = item.id || item.id_producto || item.id_cliente || item.id_proveedor || item.id_pedido;
-        
+        fila.dataset.id = tipo === "pedidos"
+    ? item.id_pedido
+    : item.id || item.id_producto || item.id_cliente || item.id_proveedor;
+
         if (tipo === "productos") {
             fila.innerHTML = `
                 <td>${item.id_producto}</td>
@@ -123,7 +131,7 @@ function renderizarTabla(datos, selectorTbody, tipo) {
             if (item.productos && item.productos.length > 0) {
                 listaProductosHTML = "<ul>";
                 item.productos.forEach(prod => {
-                    listaProductosHTML += `<li>${prod.nombre_producto} (Cant: ${prod.cantidad})</li>`; 
+                    listaProductosHTML += `<li>${prod.nombre_producto} (Cant: ${prod.cantidad})</li>`;
                 });
                 listaProductosHTML += "</ul>";
             } else {
@@ -152,6 +160,7 @@ function renderizarTabla(datos, selectorTbody, tipo) {
                 listaProductosHTML = "Sin productos";
             }
 
+            // Sin ID, sin editar, sin borrar
             fila.innerHTML = `
                 <td>${item.nombre_cliente}</td>
                 <td>${item.fecha}</td>
@@ -164,16 +173,21 @@ function renderizarTabla(datos, selectorTbody, tipo) {
     });
 }
 
+
+
+// Variable global para almacenar el carrito del nuevo pedido
 let carritoPedido = [];
 
+// Función que detecta qué pestaña está abierta actualmente
 function verificarYMostrarPestanaActiva() {
     const panelActivo = document.querySelector('.pestaña.active-content');
-    
+
     if (panelActivo) {
-        const idTab = panelActivo.id;        
-        
+        const idTab = panelActivo.id;
+
         if (idTab === 'panel-principal') {
             cargarUltimasOperacionesPanel();
+            cargarResumenDashboard();
         } else if (idTab === 'inventario') {
             cargarEntidad(URL_API, '#tablaProductos', 'productos');
         } else if (idTab === 'clientes') {
@@ -190,19 +204,55 @@ function verificarYMostrarPestanaActiva() {
     }
 }
 
+// Cargar los pedidos en la pantalla principal
 async function cargarUltimasOperacionesPanel() {
     try {
         const respuesta = await fetch(URL_API3);
         const pedidos = await respuesta.json();
-        
+
+        // Ordenar de más nuevo a más viejo (descendente por ID de pedido)
         pedidos.sort((a, b) => b.id_pedido - a.id_pedido);
 
+        // Renderizamos usando la función general reutilizada
         renderizarTabla(pedidos, "#tablaUltimasOperaciones", "ultimas-operaciones");
     } catch (error) {
         console.error("Error al cargar las últimas operaciones:", error);
     }
 }
 
+async function cargarResumenDashboard(){
+    try {
+        const respuesta = await fetch(URL_API5);
+        const datos = await respuesta.json();
+
+        if (!respuesta.ok || datos.error){
+            throw new Error(datos.error || "No se pudo cargar el resumen");
+
+        }
+
+        document.querySelector("#total-ventas").textContent =
+            `$${Number(datos.monto_anual).toFixed(2)}`;
+
+        document.querySelector("#productos-stock").textContent =
+            datos.productos_disponibles ?? 0;
+
+        document.querySelector("#unidades-stock").textContent =
+             `${datos.total_unidades ?? 0} unidades`;
+
+        document.querySelector("#alerta-stock").textContent =
+            datos.stock_bajo?.length ?? 0;
+
+        document.querySelector("#total-contactos").textContent =
+         `${datos.total_clientes ?? 0} / ${datos.total_proveedores ?? 0}`
+
+    } catch (error) {
+        console.error("Error al cargar el resumen:", error);
+
+
+    }
+}
+
+// Cargar clientes en el select id="cliente"
 async function cargarClientesEnSelect() {
     try {
         const respuesta = await fetch(URL_API2);
@@ -222,11 +272,12 @@ async function cargarClientesEnSelect() {
     }
 }
 
+// Cargar productos en el catálogo de nuevo pedido respetando el stock
 async function cargarProductosCatalogoPedido() {
     try {
         const respuesta = await fetch(URL_API);
         const productos = await respuesta.json();
-        estadoApp.productos = productos;
+        estadoApp.productos = productos; // Sincronizamos el estado
         const contenedor = document.querySelector("#catalogo-productos");
         if (!contenedor) return;
 
@@ -234,7 +285,8 @@ async function cargarProductosCatalogoPedido() {
         productos.forEach(prod => {
             const div = document.createElement("div");
             div.className = "prod-item";
-            
+
+            // Si el stock es 0, se deshabilita visualmente y no permite seleccionar
             if (prod.stock <= 0) {
                 div.style.opacity = "0.5";
                 div.style.cursor = "not-allowed";
@@ -250,10 +302,12 @@ async function cargarProductosCatalogoPedido() {
     }
 }
 
+// Agregar producto al carrito o incrementar su cantidad
 function agregarAlCarrito(producto) {
     let itemEnCarrito = carritoPedido.find(item => item.id_producto === producto.id_producto);
     let cantidadActualEnCarrito = itemEnCarrito ? itemEnCarrito.cantidad : 0;
 
+    // Validar que no supere el stock disponible
     if (cantidadActualEnCarrito + 1 > producto.stock) {
         alert("No hay suficiente stock de este producto.");
         return;
@@ -273,6 +327,7 @@ function agregarAlCarrito(producto) {
     renderizarCarrito();
 }
 
+// Renderizar el detalle del carrito usando estructura de tabla y calcular el total
 function renderizarCarrito() {
     const listaCarrito = document.querySelector("#lista-carrito");
     const spanTotal = document.querySelector("#total-pedido");
@@ -319,6 +374,7 @@ function renderizarCarrito() {
     listaCarrito.innerHTML = tablaHTML;
     spanTotal.textContent = `$${totalGeneral.toFixed(2)}`;
 
+    // Asignar eventos a los botones de eliminar de cada ítem
     document.querySelectorAll(".btn-eliminar-item").forEach(btn => {
         btn.addEventListener("click", (e) => {
             const index = e.target.getAttribute("data-index");
@@ -328,6 +384,7 @@ function renderizarCarrito() {
     });
 }
 
+// Inicializar el botón de confirmar pedido para enviar la instancia a la API de pedidos
 function inicializarBotonGuardarPedido() {
     const btnGuardar = document.querySelector("#btn-guardar-pedido");
     if (!btnGuardar) return;
@@ -364,11 +421,12 @@ function inicializarBotonGuardarPedido() {
 
             if (respuesta.ok) {
                 alert("¡Se genero el pedido!");
-                
+
+                // Limpiar carrito y formulario
                 carritoPedido = [];
                 renderizarCarrito();
                 document.querySelector("#cliente").value = "";
-                cargarProductosCatalogoPedido(); 
+                cargarProductosCatalogoPedido();
             } else {
                 const errorData = await respuesta.json();
                 alert("Error al crear el pedido: " + (errorData.error || "Desconocido"));
@@ -379,8 +437,21 @@ function inicializarBotonGuardarPedido() {
     };
 }
 
+
+
+
 function cambiarPestana(event, idTabSeleccionada) {
     if (event) event.preventDefault();
+
+    const checkMenu = document.querySelector('#btn-menu');
+    if (checkMenu) checkMenu.checked = false;
+
+    document.querySelectorAll('.pestaña-btn').forEach(boton => {
+        boton.classList.remove('active');
+    });
+    if (event && event.currentTarget) {
+        event.currentTarget.classList.add('active');
+    }
 
     const paneles = document.querySelectorAll('.pestaña');
     paneles.forEach(panel => {
@@ -392,13 +463,9 @@ function cambiarPestana(event, idTabSeleccionada) {
         panelSeleccionado.classList.add('active-content');
     }
 
-    const enlacesMenu = document.querySelectorAll('.pestaña-btn');
-    enlacesMenu.forEach(enlace => {
-        enlace.classList.toggle('active', enlace.dataset.seccion === idTabSeleccionada);
-    });
-
     verificarYMostrarPestanaActiva();
 }
+
 
 // MANEJADORES DE EVENTOS
 
@@ -421,6 +488,7 @@ function manejarPedidos(e) {
     if (e.target.classList.contains("btn-borrar")) borrarRegistro(e, URL_API3);
 }
 
+
 // FUNCION DELETE
 
 async function borrarRegistro(evento, urlApi) {
@@ -430,17 +498,28 @@ async function borrarRegistro(evento, urlApi) {
     if (!confirm("¿Estás seguro de eliminar este registro?")) return;
 
     try {
+        console.log("ID que se intenta borrar:", id);
+
         const respuesta = await fetch(`${urlApi}?id=${id}`, {
-            method: "DELETE"
+          method: "DELETE"
         });
 
-        if (respuesta.ok) {
-            fila.remove();
+        if (!respuesta.ok) {
+           const error = await respuesta.json();
+           alert(error.error || "No se pudo borrar el pedido");
+           console.error("Respuesta del servidor:", error);
+           return;
         }
-    } catch (error) {
-        console.error("Error al borrar el registro:", error);
-    }
+
+
+         fila.remove(); // Borra la fila visualmente de la tabla
+        }
+        catch (error) {
+          console.error("Error al borrar el registro:", error);
+   }
 }
+
+
 
 // FUNCIONES DE EDICIÓN (PUT)
 
@@ -470,6 +549,7 @@ async function editarCliente(evento) {
         });
 
         if (respuesta.ok) {
+            // Actualiza la vista sin recargar
             fila.children[1].textContent = nuevoNombre;
             fila.children[2].textContent = nuevaDireccion;
             fila.children[3].textContent = nuevoTelefono;
@@ -482,15 +562,17 @@ async function editarCliente(evento) {
 async function editarProducto(evento) {
     const fila = evento.target.closest("tr");
     const id = fila.dataset.id;
-    const precioActual = fila.children[3].textContent;
-    const stockActual = fila.children[5].textContent;
+    const precioActual = fila.children[3].textContent; // Columna de precio venta
+    const stockActual = fila.children[5].textContent;  // Columna de stock
 
+    // Pedir nuevos valores
     const nuevoPrecio = prompt("Nuevo precio de venta:", precioActual);
     if (nuevoPrecio === null) return;
 
     const nuevoStock = prompt("Actualizar stock:", stockActual);
     if (nuevoStock === null) return;
 
+    // Validar que sean números válidos
     if (isNaN(nuevoPrecio) || isNaN(nuevoStock) || nuevoPrecio.trim() === "" || nuevoStock.trim() === "") {
         alert("Por favor, ingresa solo valores numéricos válidos.");
         return;
@@ -500,9 +582,9 @@ async function editarProducto(evento) {
         const respuesta = await fetch(`${URL_API}?id=${id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
+            body: JSON.stringify({
                 precio_venta: parseFloat(nuevoPrecio),
-                stock: parseInt(nuevoStock) 
+                stock: parseInt(nuevoStock)
             })
         });
 
@@ -550,15 +632,19 @@ async function editarProveedor(evento) {
     }
 }
 
+
+
+
 // Crear instancias
 function toggleFormulario(idContenedor) {
-    const contenedor = document.getElementById(idContenedor);    
+    const contenedor = document.getElementById(idContenedor);
     if (contenedor) contenedor.classList.toggle("oculto");
 }
 
+
 async function crearCliente(evento) {
     evento.preventDefault();
-    
+
     const nuevoCliente = {
         nombre_cliente: document.querySelector("#campoNombreCliente").value,
         direccion: document.querySelector("#campoDireccion").value,
@@ -573,14 +659,15 @@ async function crearCliente(evento) {
         });
 
         if (respuesta.ok) {
-            document.querySelector("#formClientes").reset();
-            toggleFormulario('formClientes-container');
-            cargarEntidad(URL_API2, '#tablaClientes', 'clientes');
+            document.querySelector("#formClientes").reset(); // Limpia el formulario
+            toggleFormulario('formClientes-container');      // Oculta el formulario desplegable
+            cargarEntidad(URL_API2, '#tablaClientes', 'clientes'); // Recarga la tabla
         }
     } catch (error) {
         console.error("Error al crear cliente:", error);
     }
 }
+
 
 async function crearProducto(evento) {
     evento.preventDefault();
@@ -637,10 +724,11 @@ async function crearProveedor(evento) {
     }
 }
 
+
 // Busquedas
 
 function toggleBusqueda(idContenedor) {
-    const contenedor = document.getElementById(idContenedor);    
+    const contenedor = document.getElementById(idContenedor);
     if (contenedor) contenedor.classList.toggle("oculto");
 }
 
@@ -774,4 +862,3 @@ function filtrarPedidos() {
 
     renderizarTabla(lista, "#tablaPedidos", "pedidos");
 }
-
