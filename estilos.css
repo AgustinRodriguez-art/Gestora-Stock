@@ -15,6 +15,10 @@ body {
   color: #333;
 }
 
+.contenido-principal {
+  background: radial-gradient(125% 125% at 50% 10%, #fff 40%, rgba(4, 77, 160, 0.753) 100%);
+}
+
 /* ==========================================================
    02. MENU LATERAL FIJO Y PLEGABLE
    ========================================================== */
@@ -277,7 +281,7 @@ body {
 
 .prod-item {
     background: #ffffff;
-    border: 2px solid #4a5568;
+    border: 2px solid #96a7c281;
     border-radius: 8px;
     padding: 10px;
     text-align: center;
@@ -818,3 +822,4 @@ form button[type="submit"]:hover:not(:disabled) {
   margin: 12px auto 0;
   background-color: #007bff;
 }
+
