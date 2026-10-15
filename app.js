@@ -185,7 +185,7 @@ function renderizarTabla(datos, selectorTbody, tipo) {
                 <td>${item.precio_venta}</td>
                 <td>${item.categoria}</td>
                 <td>${item.stock}</td>
-                <td>${item.id_proveedor}</td>
+                <td>${item.id_proveedor ?? "No especificado"}</td>
                 <td>
                     <button class="btn-editar">Editar</button>
                     <button class="btn-borrar">Borrar</button>
