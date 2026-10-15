@@ -650,38 +650,81 @@ async function editarCliente(evento) {
 
 async function editarProducto(evento) {
     const fila = evento.target.closest("tr");
+    if (!fila) return;
+
     const id = fila.dataset.id;
-    const precioActual = fila.children[3].textContent; // Columna de precio venta
-    const stockActual = fila.children[5].textContent;  // Columna de stock
+    const nombreActual = fila.children[1].textContent;
+    const precioActual = fila.children[3].textContent;
+    const stockActual = fila.children[5].textContent;
+    const proveedorActual = fila.children[6].textContent;
 
-    // Pedir nuevos valores
-    const nuevoPrecio = prompt("Nuevo precio de venta:", precioActual);
-    if (nuevoPrecio === null) return;
+    const nuevoNombre = prompt("Nuevo nombre:", nombreActual);
+    if (nuevoNombre === null) return;
 
-    const nuevoStock = prompt("Actualizar stock:", stockActual);
-    if (nuevoStock === null) return;
+    const precioTexto = prompt("Nuevo precio de venta:", precioActual);
+    if (precioTexto === null) return;
 
-    // Validar que sean números válidos
-    if (isNaN(nuevoPrecio) || isNaN(nuevoStock) || nuevoPrecio.trim() === "" || nuevoStock.trim() === "") {
-        alert("Por favor, ingresa solo valores numéricos válidos.");
+    const stockTexto = prompt("Nuevo stock:", stockActual);
+    if (stockTexto === null) return;
+
+    const proveedorPredeterminado =
+        proveedorActual === "No especificado" ? "" : proveedorActual;
+
+    const proveedorTexto = prompt(
+        "Nuevo ID de proveedor:",
+        proveedorPredeterminado
+    );
+    if (proveedorTexto === null) return;
+
+    const nombre = nuevoNombre.trim();
+    const precioVenta = Number(precioTexto);
+    const stock = Number(stockTexto);
+    const idProveedor = Number(proveedorTexto);
+
+    if (!nombre) {
+        alert("El nombre no puede quedar vacío.");
+        return;
+    }
+
+    if (precioTexto.trim() === "" || !Number.isFinite(precioVenta) || precioVenta < 0) {
+        alert("Ingresá un precio de venta válido, mayor o igual a cero.");
+        return;
+    }
+
+    if (stockTexto.trim() === "" || !Number.isInteger(stock) || stock < 0) {
+        alert("El stock debe ser un número entero mayor o igual a cero.");
+        return;
+    }
+
+    if (proveedorTexto.trim() === "" || !Number.isInteger(idProveedor) || idProveedor < 1) {
+        alert("El ID de proveedor debe ser un entero positivo.");
         return;
     }
 
     try {
-        const respuesta = await fetchConToken(`${URL_API}?id=${id}`, {
+        const respuesta = await fetchConToken(`${URL_API}?id=${encodeURIComponent(id)}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
-                precio_venta: parseFloat(nuevoPrecio),
-                stock: parseInt(nuevoStock) 
+            body: JSON.stringify({
+                nombre,
+                precio_venta: precioVenta,
+                stock,
+                id_proveedor: idProveedor
             })
         });
 
-        if (respuesta.ok) {
-            fila.children[3].textContent = nuevoPrecio;
-            fila.children[5].textContent = nuevoStock;
+        const datos = await respuesta.json();
+
+        if (!respuesta.ok) {
+            throw new Error(datos.error || "No se pudo actualizar el producto.");
         }
+
+        fila.children[1].textContent = datos.nombre;
+        fila.children[3].textContent = datos.precio_venta;
+        fila.children[5].textContent = datos.stock;
+        fila.children[6].textContent = datos.id_proveedor;
     } catch (error) {
+        alert(error.message || "Error al actualizar el producto.");
         console.error("Error al actualizar producto:", error);
     }
 }
