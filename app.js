@@ -774,6 +774,18 @@ function toggleFormulario(idContenedor) {
 }
 
 
+async function comprobarRespuestaAPI(respuesta) {
+    const datos = await respuesta.json().catch(() => ({}));
+
+    if (!respuesta.ok) {
+        throw new Error(
+            `Error ${respuesta.status}: ${datos.error || "No se pudo guardar."}`
+        );
+    }
+
+    return datos;
+}
+
 async function crearCliente(evento) {
     evento.preventDefault();
 
@@ -790,27 +802,30 @@ async function crearCliente(evento) {
             body: JSON.stringify(nuevoCliente)
         });
 
-        if (respuesta.ok) {
-            document.querySelector("#formClientes").reset(); // Limpia el formulario
-            toggleFormulario('formClientes-container');      // Oculta el formulario desplegable
-            cargarEntidad(URL_API2, '#tablaClientes', 'clientes'); // Recarga la tabla
-        }
+        await comprobarRespuestaAPI(respuesta);
+
+        document.querySelector("#formClientes").reset();
+        toggleFormulario("formClientes-container");
+        await cargarEntidad(URL_API2, "#tablaClientes", "clientes");
     } catch (error) {
+        alert(error.message || "No se pudo crear el cliente.");
         console.error("Error al crear cliente:", error);
     }
 }
-
 
 async function crearProducto(evento) {
     evento.preventDefault();
 
     const nuevoProducto = {
         nombre: document.querySelector("#campoNombre").value,
-        precio_compra: parseFloat(document.querySelector("#campoPrecioCompra").value) || 0,
-        precio_venta: parseFloat(document.querySelector("#campoPrecioVenta").value),
+        precio_compra:
+            parseFloat(document.querySelector("#campoPrecioCompra").value) || 0,
+        precio_venta:
+            parseFloat(document.querySelector("#campoPrecioVenta").value),
         categoria: document.querySelector("#campoCategoria").value,
-        stock: parseInt(document.querySelector("#campoStock").value),
-        id_proveedor: parseInt(document.querySelector("#campoIdProveedor").value)
+        stock: parseInt(document.querySelector("#campoStock").value, 10),
+        id_proveedor:
+            parseInt(document.querySelector("#campoIdProveedor").value, 10)
     };
 
     try {
@@ -820,12 +835,13 @@ async function crearProducto(evento) {
             body: JSON.stringify(nuevoProducto)
         });
 
-        if (respuesta.ok) {
-            document.querySelector("#formProducto").reset();
-            toggleFormulario('formProducto-container');
-            cargarEntidad(URL_API, '#tablaProductos', 'productos');
-        }
+        await comprobarRespuestaAPI(respuesta);
+
+        document.querySelector("#formProducto").reset();
+        toggleFormulario("formProducto-container");
+        await cargarEntidad(URL_API, "#tablaProductos", "productos");
     } catch (error) {
+        alert(error.message || "No se pudo crear el producto.");
         console.error("Error al crear producto:", error);
     }
 }
@@ -846,12 +862,13 @@ async function crearProveedor(evento) {
             body: JSON.stringify(nuevoProveedor)
         });
 
-        if (respuesta.ok) {
-            document.querySelector("#formProveedores").reset();
-            toggleFormulario('formProveedores-container');
-            cargarEntidad(URL_API4, '#tablaProveedores', 'proveedores');
-        }
+        await comprobarRespuestaAPI(respuesta);
+
+        document.querySelector("#formProveedores").reset();
+        toggleFormulario("formProveedores-container");
+        await cargarEntidad(URL_API4, "#tablaProveedores", "proveedores");
     } catch (error) {
+        alert(error.message || "No se pudo crear el proveedor.");
         console.error("Error al crear proveedor:", error);
     }
 }
