@@ -3,6 +3,7 @@ import {
     getAuth,
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
+    sendPasswordResetEmail,
     signOut,
     onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
@@ -116,4 +117,38 @@ window.firebaseAuth.observarSesion((usuario) => {
 
     pantallaLogin.hidden = haySesionFirebase;
     aplicacion.hidden = !haySesionFirebase;
+});
+
+window.firebaseAuth = {
+    registrar: (email, password) =>
+        createUserWithEmailAndPassword(auth, email, password),
+
+    ingresar: (email, password) =>
+        signInWithEmailAndPassword(auth, email, password),
+
+    recuperarPassword: (email) =>
+        sendPasswordResetEmail(auth, email),
+
+    salir: () => signOut(auth),
+
+    observarSesion: (funcion) =>
+        onAuthStateChanged(auth, funcion)
+};
+
+document.querySelector("#recuperar-password").addEventListener("click", async () => {
+    const email = document.querySelector("#login-email").value.trim();
+    const mensaje = document.querySelector("#login-mensaje");
+
+    if (!email) {
+        mensaje.textContent = "Escribí tu correo electrónico primero.";
+        return;
+    }
+
+    try {
+        await window.firebaseAuth.recuperarPassword(email);
+        mensaje.textContent = "Si el correo tiene una cuenta, vas a recibir instrucciones para restablecer la contraseña.";
+    } catch (error) {
+        mensaje.textContent = mensajeDeError(error);
+        console.error(error);
+    }
 });
