@@ -209,21 +209,34 @@ try {
     }
 
     if ($metodo === "DELETE") {
-        if (!isset($_GET["id"])) {
-            responder(400, ["error" => "Falta el id del producto"]);
-        }
+    if (!isset($_GET["id"])) {
+        responder(400, ["error" => "Falta el id del producto"]);
+    }
 
-        $id = filter_var($_GET["id"], FILTER_VALIDATE_INT);
+    $id = filter_var($_GET["id"], FILTER_VALIDATE_INT);
 
-        if ($id === false || $id < 1) {
-            responder(422, ["error" => "El id del producto debe ser válido"]);
-        }
+    if ($id === false || $id < 1) {
+        responder(422, ["error" => "El id del producto debe ser válido"]);
+    }
 
-        $consulta = $conexion->prepare(
-            "DELETE FROM producto WHERE id_producto = :id"
-        );
+    $consulta = $conexion->prepare(
+        "DELETE FROM producto WHERE id_producto = :id"
+    );
+
+    try {
         $consulta->execute([":id" => $id]);
+    } catch (PDOException $error) {
+        // MySQL 1451: no permite borrar un producto asociado a un pedido.
+        $codigoMysql = $error->errorInfo[1] ?? null;
 
+        if ($codigoMysql === 1451) {
+            responder(409, [
+                "error" => "No se puede borrar el producto porque está asociado a un pedido."
+            ]);
+        }
+        // Los errores distintos siguen el manejo general del servidor
+        throw $error;
+    }
         if ($consulta->rowCount() === 0) {
             responder(404, ["error" => "No se encontró el producto"]);
         }

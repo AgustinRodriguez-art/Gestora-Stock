@@ -143,7 +143,10 @@ function mostrarAplicacion() {
 async function cargarEntidad(url, selectorTbody, tipo) {
     try {
         const respuesta = await fetchConToken(url);
-        const datos = await respuesta.json();
+        const datos = await comprobarRespuestaAPI(
+            respuesta,
+            `No se pudieron cargar ${tipo}.`
+        );
 
         // Guardamos en el estado según el tipo
         if (tipo === "productos") {
@@ -160,6 +163,7 @@ async function cargarEntidad(url, selectorTbody, tipo) {
             filtrarPedidos();
         }
     } catch (error) {
+        alert(error.message || `No se pudieron cargar ${tipo}.`);
         console.error(`Error al cargar ${tipo}:`, error);
     }
 }
@@ -291,7 +295,10 @@ async function verificarYMostrarPestanaActiva() {
 async function cargarUltimasOperacionesPanel() {
     try {
         const respuesta = await fetchConToken(URL_API3);
-        const pedidos = await respuesta.json();
+        const pedidos = await comprobarRespuestaAPI(
+            respuesta,
+            "No se pudieron cargar las últimas operaciones."
+        );
 
         // Ordenar de más nuevo a más viejo (descendente por ID de pedido)
         pedidos.sort((a, b) => b.id_pedido - a.id_pedido);
@@ -299,6 +306,7 @@ async function cargarUltimasOperacionesPanel() {
         // Renderizamos usando la función general reutilizada
         renderizarTabla(pedidos, "#tablaUltimasOperaciones", "ultimas-operaciones");
     } catch (error) {
+        alert(error.message || "No se pudieron cargar las últimas operaciones.");
         console.error("Error al cargar las últimas operaciones:", error);
     }
 }
@@ -306,12 +314,10 @@ async function cargarUltimasOperacionesPanel() {
 async function cargarResumenDashboard(){
     try {
         const respuesta = await fetchConToken(URL_API5);
-        const datos = await respuesta.json();
-
-        if (!respuesta.ok || datos.error){
-            throw new Error(datos.error || "No se pudo cargar el resumen");
-
-        }
+        const datos = await comprobarRespuestaAPI(
+            respuesta,
+            "No se pudo cargar el resumen."
+        );
 
         document.querySelector("#total-ventas").textContent =
             `$${Number(datos.monto_anual).toFixed(2)}`;
@@ -329,9 +335,8 @@ async function cargarResumenDashboard(){
          `${datos.total_clientes ?? 0} / ${datos.total_proveedores ?? 0}`
 
     } catch (error) {
+        alert(error.message || "No se pudo cargar el resumen.");
         console.error("Error al cargar el resumen:", error);
-
-
     }
 }
 
@@ -339,7 +344,10 @@ async function cargarResumenDashboard(){
 async function cargarClientesEnSelect() {
     try {
         const respuesta = await fetchConToken(URL_API2);
-        const clientes = await respuesta.json();
+        const clientes = await comprobarRespuestaAPI(
+            respuesta,
+            "No se pudieron cargar los clientes para el pedido."
+        );
         const selectCliente = document.querySelector("#cliente");
         if (!selectCliente) return;
 
@@ -351,6 +359,7 @@ async function cargarClientesEnSelect() {
             selectCliente.appendChild(option);
         });
     } catch (error) {
+        alert(error.message || "No se pudieron cargar los clientes para el pedido.");
         console.error("Error al cargar clientes para el pedido:", error);
     }
 }
@@ -359,7 +368,10 @@ async function cargarClientesEnSelect() {
 async function cargarProductosCatalogoPedido() {
     try {
         const respuesta = await fetchConToken(URL_API);
-        const productos = await respuesta.json();
+        const productos = await comprobarRespuestaAPI(
+            respuesta,
+            "No se pudieron cargar los productos para el pedido."
+        );
         estadoApp.productos = productos; // Sincronizamos el estado
         const contenedor = document.querySelector("#catalogo-productos");
         if (!contenedor) return;
@@ -381,6 +393,7 @@ async function cargarProductosCatalogoPedido() {
             contenedor.appendChild(div);
         });
     } catch (error) {
+        alert(error.message || "No se pudieron cargar los productos para el pedido.");
         console.error("Error al cargar productos en catálogo:", error);
     }
 }
@@ -476,6 +489,7 @@ function inicializarBotonGuardarPedido() {
 
     btnGuardar.onclick = async () => {
         const idClienteSelect = document.querySelector("#cliente").value;
+
         if (!idClienteSelect) {
             alert("Por favor, seleccione un cliente.");
             return;
@@ -503,23 +517,25 @@ function inicializarBotonGuardarPedido() {
             });
 
             if (respuesta.ok) {
-                alert("¡Se genero el pedido!");
+                alert("¡Se generó el pedido!");
 
-                // Limpiar carrito y formulario
                 carritoPedido = [];
                 renderizarCarrito();
                 document.querySelector("#cliente").value = "";
-                cargarProductosCatalogoPedido(); 
+                cargarProductosCatalogoPedido();
             } else {
-                const errorData = await respuesta.json();
-                alert("Error al crear el pedido: " + (errorData.error || "Desconocido"));
+                const errorData = await respuesta.json().catch(() => ({}));
+                alert(
+                    "Error al crear el pedido: " +
+                    (errorData.error || `HTTP ${respuesta.status}`)
+                );
             }
         } catch (error) {
+            alert(error.message || "No se pudo crear el pedido. Revisá la conexión.");
             console.error("Error en la petición del pedido:", error);
         }
     };
 }
-
 
 
 
@@ -582,30 +598,21 @@ function manejarPedidos(e) {
 
 async function borrarRegistro(evento, urlApi) {
     const fila = evento.target.closest("tr");
-    const id = fila.dataset.id;
+    if (!fila) return;
 
+    const id = fila.dataset.id;
     if (!confirm("¿Estás seguro de eliminar este registro?")) return;
 
     try {
-        console.log("ID que se intenta borrar:", id);
-
-        const respuesta = await fetchConToken(`${urlApi}?id=${id}`, {
-          method: "DELETE"
+        const respuesta = await fetchConToken(`${urlApi}?id=${encodeURIComponent(id)}`, {
+            method: "DELETE"
         });
-
-        if (!respuesta.ok) {
-           const error = await respuesta.json();
-           alert(error.error || "No se pudo borrar el pedido");
-           console.error("Respuesta del servidor:", error);
-           return;
-        }  
-
-
-         fila.remove(); // Borra la fila visualmente de la tabla
-        }
-        catch (error) {
-          console.error("Error al borrar el registro:", error);
-   }
+        await comprobarRespuestaAPI(respuesta, "No se pudo borrar el registro.");
+        fila.remove();
+    } catch (error) {
+        alert(error.message || "No se pudo borrar el registro.");
+        console.error("Error al borrar el registro:", error);
+    }
 }
 
 
@@ -637,13 +644,15 @@ async function editarCliente(evento) {
             })
         });
 
-        if (respuesta.ok) {
-            // Actualiza la vista sin recargar
-            fila.children[1].textContent = nuevoNombre;
-            fila.children[2].textContent = nuevaDireccion;
-            fila.children[3].textContent = nuevoTelefono;
-        }
+        const datos = await comprobarRespuestaAPI(
+            respuesta,
+            "No se pudo actualizar el cliente."
+        );
+        fila.children[1].textContent = datos.nombre_cliente ?? nuevoNombre;
+        fila.children[2].textContent = datos.direccion ?? nuevaDireccion;
+        fila.children[3].textContent = datos.telefono ?? nuevoTelefono;
     } catch (error) {
+        alert(error.message || "No se pudo actualizar el cliente.");
         console.error("Error al actualizar cliente:", error);
     }
 }
@@ -713,11 +722,10 @@ async function editarProducto(evento) {
             })
         });
 
-        const datos = await respuesta.json();
-
-        if (!respuesta.ok) {
-            throw new Error(datos.error || "No se pudo actualizar el producto.");
-        }
+        const datos = await comprobarRespuestaAPI(
+            respuesta,
+            "No se pudo actualizar el producto."
+        );
 
         fila.children[1].textContent = datos.nombre;
         fila.children[3].textContent = datos.precio_venta;
@@ -754,12 +762,15 @@ async function editarProveedor(evento) {
             })
         });
 
-        if (respuesta.ok) {
-            fila.children[1].textContent = nuevoNombre;
-            fila.children[2].textContent = nuevoContacto;
-            fila.children[3].textContent = nuevoMail;
-        }
+        const datos = await comprobarRespuestaAPI(
+            respuesta,
+            "No se pudo actualizar el proveedor."
+        );
+        fila.children[1].textContent = datos.nombre ?? nuevoNombre;
+        fila.children[2].textContent = datos.contacto ?? nuevoContacto;
+        fila.children[3].textContent = datos.mail ?? nuevoMail;
     } catch (error) {
+        alert(error.message || "No se pudo actualizar el proveedor.");
         console.error("Error al actualizar proveedor:", error);
     }
 }
@@ -774,12 +785,15 @@ function toggleFormulario(idContenedor) {
 }
 
 
-async function comprobarRespuestaAPI(respuesta) {
+async function comprobarRespuestaAPI(
+    respuesta,
+    mensajePorDefecto = "No se pudo completar la operación."
+) {
     const datos = await respuesta.json().catch(() => ({}));
 
     if (!respuesta.ok) {
         throw new Error(
-            `Error ${respuesta.status}: ${datos.error || "No se pudo guardar."}`
+            datos.error || `${mensajePorDefecto} (HTTP ${respuesta.status})`
         );
     }
 
