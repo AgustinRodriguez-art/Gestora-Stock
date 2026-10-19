@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS Proveedor (
 );
 
 -- Tabla Clientes 
-CREATE TABLE IF NOT EXISTS Clientes (
+CREATE TABLE IF NOT EXISTS clientes (
     id_cliente INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     nombre_cliente VARCHAR(150) NOT NULL,
     direccion VARCHAR(255) NOT NULL,
@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS Clientes (
 );
 
 -- Tabla Producto
-CREATE TABLE IF NOT EXISTS Producto (
+CREATE TABLE IF NOT EXISTS producto (
     id_producto INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(150) NOT NULL,
     precio_compra DECIMAL(10,2) NOT NULL,
