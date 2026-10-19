@@ -22,7 +22,10 @@ if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
 }
 
 require_once __DIR__ . "/firebase_auth.php";
-exigirUsuarioFirebase();
+require_once __DIR__ . "/resend.php";
+
+$usuarioFirebase = exigirUsuarioFirebase();
+$emailUsuario = (string)($usuarioFirebase["email"] ?? "");
 
 $metodo = $_SERVER["REQUEST_METHOD"];
 
@@ -112,7 +115,7 @@ if ($metodo === "POST") {
             }
 
             $stmtProducto = $conexion->prepare(
-                "SELECT precio_venta, stock
+                "SELECT nombre, precio_venta, stock
                  FROM producto
                  WHERE id_producto = :id
                  FOR UPDATE"
@@ -140,14 +143,16 @@ if ($metodo === "POST") {
                 exit();
             }
 
-            // El precio se toma de la base de datos, no del navegador.
+            // El precio y el stock se toman de la base de datos.
             $precio = (float)$producto["precio_venta"];
             $total += $precio * $cantidad;
 
             $productosValidos[] = [
                 "id" => $idProducto,
+                "nombre" => $producto["nombre"],
                 "cantidad" => $cantidad,
-                "precio" => $precio
+                "precio" => $precio,
+                "stock_anterior" => (int)$producto["stock"]
             ];
         }
 
@@ -161,6 +166,7 @@ if ($metodo === "POST") {
         ]);
 
         $idPedido = (int)$conexion->lastInsertId();
+        $alertasStock = [];
 
         foreach ($productosValidos as $producto) {
             $stmtDetalle = $conexion->prepare(
@@ -196,9 +202,32 @@ if ($metodo === "POST") {
                 );
                 exit();
             }
+
+            $stockNuevo =
+                $producto["stock_anterior"] - $producto["cantidad"];
+
+            // Avisar solo cuando el stock cruza el límite hacia abajo.
+            if (
+                $producto["stock_anterior"] > LIMITE_STOCK_BAJO &&
+                $stockNuevo <= LIMITE_STOCK_BAJO
+            ) {
+                $alertasStock[] = [
+                    "nombre" => $producto["nombre"],
+                    "stock" => $stockNuevo
+                ];
+            }
         }
 
         $conexion->commit();
+
+        // El email se envía al usuario autenticado que hizo el pedido.
+        foreach ($alertasStock as $alerta) {
+            enviarAvisoStockBajo(
+                $emailUsuario,
+                $alerta["nombre"],
+                $alerta["stock"]
+            );
+        }
 
         http_response_code(201);
         echo json_encode([

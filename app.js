@@ -1025,3 +1025,6 @@ function filtrarPedidos() {
 
     renderizarTabla(lista, "#tablaPedidos", "pedidos");
 }
+
+
+
