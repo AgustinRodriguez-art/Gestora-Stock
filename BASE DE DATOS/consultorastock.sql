@@ -1,5 +1,4 @@
 -- Active: 1791922946155@@127.0.0.1@3306@consultorastock
-DROP DATABASE IF EXISTS consultorastock;
 CREATE DATABASE IF NOT EXISTS consultorastock CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 USE consultorastock;
