@@ -67,7 +67,7 @@ CREATE TABLE IF NOT EXISTS Producto_pedido (
     REFERENCES Producto (id_producto)
     ON DELETE RESTRICT
     ON UPDATE CASCADE
-)
+);
 
 CREATE TABLE IF NOT EXISTS usuarios (
     id_usuario INT NOT NULL AUTO_INCREMENT PRIMARY KEY,

@@ -1,5 +1,5 @@
 <?php
-require "conexion.php";
+require_once __DIR__ . "/conexion.php";
 
 $origen = $_SERVER["HTTP_ORIGIN"] ?? "";
 $origenesPermitidos = [
@@ -8,13 +8,13 @@ $origenesPermitidos = [
 ];
 
 if (in_array($origen, $origenesPermitidos, true)) {
-    header("Access-Control-Allow-Origin: $origen");
+    header("Access-Control-Allow-Origin: " . $origen);
     header("Vary: Origin");
 }
 
 header("Content-Type: application/json; charset=utf-8");
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
 if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
     http_response_code(200);
@@ -22,122 +22,150 @@ if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
 }
 
 require_once __DIR__ . "/firebase_auth.php";
-$usuarioFirebase = exigirUsuarioFirebase();
+exigirUsuarioFirebase();
+
+function responderClientes($estado, $datos = []): void
+{
+    http_response_code($estado);
+
+    if ($estado !== 204) {
+        echo json_encode($datos, JSON_UNESCAPED_UNICODE);
+    }
+
+    exit();
+}
+
+function validarIdCliente($valor)
+{
+    $id = filter_var($valor, FILTER_VALIDATE_INT);
+    return ($id !== false && $id > 0) ? $id : false;
+}
 
 $metodo = $_SERVER["REQUEST_METHOD"];
 
-// Si mandan datos por POST, registramos un nuevo cliente
-if ($metodo === "POST") {
-    // Leemos el cuerpo JSON enviado desde el formulario del frontend
-    $cuerpo = json_decode(file_get_contents("php://input"), true);
-
-    // Validamos que vengan los campos indispensables
-    if (!isset($cuerpo["nombre_cliente"], $cuerpo["direccion"], $cuerpo["telefono"])) {
-        http_response_code(400);
-        echo json_encode(["error" => "Faltan datos del cliente"]);
-        exit();
+try {
+    if ($metodo === "GET") {
+        $consulta = $conexion->query(
+            "SELECT * FROM clientes ORDER BY id_cliente"
+        );
+        responderClientes(200, $consulta->fetchAll(PDO::FETCH_ASSOC));
     }
 
-    // Consulta para evitar inyecciones SQL
-    $consulta = $conexion->prepare(
-        "INSERT INTO clientes (nombre_cliente, direccion, telefono) 
-         VALUES (:nombre_cliente, :direccion, :telefono)"
-    );
-    $consulta->execute([
-        ":nombre_cliente" => $cuerpo["nombre_cliente"],
-        ":direccion"      => $cuerpo["direccion"],
-        ":telefono"       => $cuerpo["telefono"]
-    ]);
+    if ($metodo === "POST" || $metodo === "PUT") {
+        $esEdicion = $metodo === "PUT";
 
-    // Devolvemos un codigo 201 indicando que se creo correctamente y el ID generado
-    http_response_code(201);
-    echo json_encode([
-        "success" => true, 
-        "id_cliente" => (int)$conexion->lastInsertId()
-    ], JSON_UNESCAPED_UNICODE);
-    exit();
-}
+        if ($esEdicion) {
+            if (!isset($_GET["id"])) {
+                responderClientes(400, ["error" => "Falta el ID del cliente"]);
+            }
 
-// Si piden los datos por GET, listamos todos los clientes guardados
-if ($metodo === "GET") {
-    $consulta = $conexion->query("SELECT * FROM clientes");
-    $clientes = $consulta->fetchAll(PDO::FETCH_ASSOC);
-    echo json_encode($clientes, JSON_UNESCAPED_UNICODE);
-    exit();
-}
+            $id = validarIdCliente($_GET["id"]);
+            if ($id === false) {
+                responderClientes(422, ["error" => "El ID del cliente no es válido"]);
+            }
+        }
 
+        $datos = json_decode(file_get_contents("php://input"), true);
 
+        if (
+            !is_array($datos) ||
+            !isset($datos["nombre_cliente"], $datos["direccion"], $datos["telefono"]) ||
+            !is_string($datos["nombre_cliente"]) ||
+            !is_string($datos["direccion"]) ||
+            !is_string($datos["telefono"])
+        ) {
+            responderClientes(400, ["error" => "Faltan datos válidos del cliente"]);
+        }
 
+        $nombre = trim($datos["nombre_cliente"]);
+        $direccion = trim($datos["direccion"]);
+        $telefono = trim($datos["telefono"]);
 
+        if (
+            $nombre === "" || mb_strlen($nombre) > 150 ||
+            $direccion === "" || mb_strlen($direccion) > 255 ||
+            $telefono === "" || mb_strlen($telefono) > 50
+        ) {
+            responderClientes(422, [
+                "error" => "Revisá nombre, dirección y teléfono"
+            ]);
+        }
 
+        if ($esEdicion) {
+            $buscar = $conexion->prepare(
+                "SELECT id_cliente FROM clientes WHERE id_cliente = :id"
+            );
+            $buscar->execute([":id" => $id]);
 
-/* PUT - Editar cliente */
-if ($metodo === "PUT") {
-    if (!isset($_GET["id"])) {
-        http_response_code(400);
-        echo json_encode(["error" => "Falta el id del cliente"]);
-        exit();
+            if (!$buscar->fetch(PDO::FETCH_ASSOC)) {
+                responderClientes(404, ["error" => "No se encontró el cliente"]);
+            }
+
+            $consulta = $conexion->prepare(
+                "UPDATE clientes
+                 SET nombre_cliente = :nombre,
+                     direccion = :direccion,
+                     telefono = :telefono
+                 WHERE id_cliente = :id"
+            );
+            $consulta->execute([
+                ":nombre" => $nombre,
+                ":direccion" => $direccion,
+                ":telefono" => $telefono,
+                ":id" => $id
+            ]);
+
+            responderClientes(200, [
+                "success" => true,
+                "id_cliente" => $id,
+                "nombre_cliente" => $nombre,
+                "direccion" => $direccion,
+                "telefono" => $telefono
+            ]);
+        }
+
+        $consulta = $conexion->prepare(
+            "INSERT INTO clientes (nombre_cliente, direccion, telefono)
+             VALUES (:nombre, :direccion, :telefono)"
+        );
+        $consulta->execute([
+            ":nombre" => $nombre,
+            ":direccion" => $direccion,
+            ":telefono" => $telefono
+        ]);
+
+        responderClientes(201, [
+            "success" => true,
+            "id_cliente" => (int)$conexion->lastInsertId()
+        ]);
     }
 
-    $cuerpo = json_decode(file_get_contents("php://input"), true);
+    if ($metodo === "DELETE") {
+        if (!isset($_GET["id"])) {
+            responderClientes(400, ["error" => "Falta el ID del cliente"]);
+        }
 
-    if (!isset($cuerpo["nombre_cliente"]) || !isset($cuerpo["direccion"]) || !isset($cuerpo["telefono"])) {
-        http_response_code(400);
-        echo json_encode(["error" => "Faltan datos obligatorios del cliente"]);
-        exit();
+        $id = validarIdCliente($_GET["id"]);
+        if ($id === false) {
+            responderClientes(422, ["error" => "El ID del cliente no es válido"]);
+        }
+
+        $consulta = $conexion->prepare(
+            "DELETE FROM clientes WHERE id_cliente = :id"
+        );
+        $consulta->execute([":id" => $id]);
+
+        if ($consulta->rowCount() === 0) {
+            responderClientes(404, ["error" => "No se encontró el cliente"]);
+        }
+
+        responderClientes(204);
     }
 
-    $consulta = $conexion->prepare(
-        "UPDATE clientes
-         SET nombre_cliente = :nombre_cliente,
-             direccion = :direccion,
-             telefono = :telefono
-         WHERE id_cliente = :id"
-    );
-
-    $consulta->execute([
-        ":nombre_cliente" => $cuerpo["nombre_cliente"],
-        ":direccion"      => $cuerpo["direccion"],
-        ":telefono"       => $cuerpo["telefono"],
-        ":id"             => $_GET["id"]
-    ]);
-
-    http_response_code(200);
-    echo json_encode([
-        "success"        => true,
-        "id_cliente"     => (int)$_GET["id"],
-        "nombre_cliente" => $cuerpo["nombre_cliente"],
-        "direccion"      => $cuerpo["direccion"],
-        "telefono"       => $cuerpo["telefono"]
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit();
+    header("Allow: GET, POST, PUT, DELETE, OPTIONS");
+    responderClientes(405, ["error" => "Método no permitido"]);
+} catch (Throwable $error) {
+    error_log("Error en api_clientes.php: " . $error->getMessage());
+    responderClientes(500, ["error" => "Error interno del servidor"]);
 }
-
-/* DELETE - Borrar cliente */
-if ($metodo === "DELETE") {
-    if (!isset($_GET["id"])) {
-        http_response_code(400);
-        echo json_encode(["error" => "Falta el id del cliente"]);
-        exit();
-    }
-
-    $consulta = $conexion->prepare(
-        "DELETE FROM clientes
-         WHERE id_cliente = :id"
-    );
-
-    $consulta->execute([
-        ":id" => $_GET["id"]
-    ]);
-
-    http_response_code(204);
-    exit();
-}
-
-
-
-
-
-
 ?>
