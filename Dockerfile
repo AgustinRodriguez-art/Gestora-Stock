@@ -1,6 +1,9 @@
 FROM php:8.2-apache
 
-RUN a2dismod mpm_event mpm_worker || true; a2enmod mpm_prefork
+RUN rm -f /etc/apache2/mods-enabled/mpm_*.load \
+          /etc/apache2/mods-enabled/mpm_*.conf \
+    && a2enmod mpm_prefork \
+    && test "$(apache2ctl -M 2>/dev/null | grep -Ec 'mpm_(prefork|event|worker)_module')" -eq 1
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends libcurl4-openssl-dev libonig-dev \
